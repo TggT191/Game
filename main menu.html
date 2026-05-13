@@ -124,6 +124,8 @@
 
   <!-- Toast -->
   <div class="toast-msg" id="toastMsg"></div>
+  <!-- Fullscreen restore prompt -->
+  <div id="fsPrompt" class="fs-prompt hidden" onclick="restoreFullscreen()">🖥️ Click to restore fullscreen</div>
 
   
   <script>
@@ -338,8 +340,7 @@
     // =====================
     //  Quit
     // =====================
-    function quitGame() {
-      const confirmed = confirm('Are you sure you want to quit?');
+    function quitGame() {      const confirmed = confirm('Are you sure you want to quit?');
       if (confirmed) {
         document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#1e2a22;color:#aaa;font-size:1.2rem;">Goodbye!! it was nice playing with you!.</div>';
       }
@@ -515,11 +516,12 @@
     }
 
     function clearDeck() {
-      if (deck.length === 0) return;
+      if (deck.length === 0) { showToast('Deck is already empty.'); return; }
       deck = [];
+      localStorage.removeItem('wildcardDeck');
       renderDeck();
       renderCollection();
-      showToast('Deck cleared.');
+      showToast('Deck cleared. Random cards will be used in battle.');
     }
 
     function showToast(msg) {
