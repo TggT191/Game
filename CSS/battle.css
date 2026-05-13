@@ -1,4 +1,4 @@
-﻿/* ===== Base ===== */
+/* ===== Base ===== */
 *, *::before, *::after { box-sizing: border-box; }
 body { margin:0; background:#0a1a0a; color:white; font-family:sans-serif; height:100vh; overflow:hidden; }
 .hidden { display:none !important; }
