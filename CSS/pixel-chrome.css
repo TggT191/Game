@@ -1,0 +1,467 @@
+/* UI chrome pixel polish — does NOT style .hand-card / .hc-* (player cards & moves) */
+
+/* ===== Global page shells ===== */
+body.page-menu {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(58, 106, 154, 0.12) 0%, transparent 55%),
+    var(--px-bg-menu);
+}
+
+body.page-build {
+  background:
+    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(90, 120, 180, 0.1) 0%, transparent 50%),
+    var(--px-bg-main);
+}
+
+body.page-battle,
+body.page-tutorial {
+  background: var(--px-bg-deep);
+  color: var(--px-text);
+}
+
+/* ===== Main menu ===== */
+.page-menu .title {
+  color: var(--px-text);
+  text-shadow: 2px 2px 0 var(--px-shadow), 0 0 14px rgba(212, 184, 74, 0.4);
+}
+
+/* Main menu table: styled in mm.css (overhead scene) */
+
+.page-menu .settings-modal {
+  background: var(--px-bg-panel);
+  border: 2px solid var(--px-border);
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-hard), var(--px-inset);
+  color: var(--px-text);
+}
+
+.page-menu .settings-title { color: var(--px-gold-bright); }
+.page-menu .setting-item label { color: var(--px-text-muted); }
+.page-menu .fullscreen-btn,
+.page-menu .close-btn {
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-soft);
+}
+
+.page-menu .fullscreen-btn {
+  background: linear-gradient(180deg, var(--px-sage-dark) 0%, #2a3a2a 100%);
+  border: 2px solid var(--px-sage);
+}
+
+.page-menu .close-btn {
+  background: linear-gradient(180deg, var(--px-wood) 0%, var(--px-wood-dark) 100%);
+  border: 2px solid var(--px-wood-border);
+}
+
+.page-menu .modal-overlay { background: rgba(6, 8, 16, 0.82); backdrop-filter: none; }
+.page-menu .fs-prompt,
+.page-menu .toast-msg {
+  background: var(--px-bg-panel);
+  border: 2px solid var(--px-border);
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-soft);
+  color: var(--px-text);
+}
+
+/* ===== Build deck (chrome only; .coll-card unchanged) ===== */
+.page-build .bd-title { color: var(--px-gold-bright); text-shadow: 2px 2px 0 var(--px-shadow); }
+.page-build .deck-counter { color: var(--px-text-muted); }
+.page-build .panel-title { color: var(--px-text-muted); }
+
+.page-build .filter-btn {
+  background: var(--px-bg-panel-2);
+  border: 2px solid var(--px-border);
+  border-radius: var(--px-radius-sm);
+  color: var(--px-text-muted);
+  box-shadow: 2px 2px 0 var(--px-shadow);
+}
+
+.page-build .filter-btn.active {
+  background: linear-gradient(180deg, var(--px-sage-dark) 0%, #2a3a2a 100%);
+  border-color: var(--px-sage);
+  color: var(--px-text);
+}
+
+.page-build .deck-panel {
+  background: var(--px-bg-panel);
+  border: 2px solid var(--px-border);
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-hard), var(--px-inset);
+}
+
+.page-build .deck-row {
+  background: var(--px-bg-panel-2);
+  border-radius: var(--px-radius-sm);
+}
+
+.page-build .save-btn,
+.page-build .back-btn {
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-soft);
+}
+
+.page-build .typechart-modal {
+  background: var(--px-bg-panel);
+  border: 2px solid var(--px-cosmic);
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-hard), var(--px-inset);
+  color: var(--px-text);
+}
+
+.page-build .typechart-modal .modal-title { color: var(--px-cosmic-bright); }
+.page-build .tc-strong { color: var(--px-sage-light); }
+.page-build .tc-weak { color: #f08080; }
+
+.page-build .clear-btn {
+  background: linear-gradient(180deg, #5a2828 0%, #3a1818 100%);
+  border: 2px solid var(--px-quit);
+}
+
+.page-build .modal-overlay { background: rgba(6, 8, 16, 0.88); backdrop-filter: none; }
+
+.page-build .toast-msg {
+  background: var(--px-bg-panel);
+  border: 2px solid var(--px-sage);
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-soft);
+}
+
+/* ===== Battle HUD & table ===== */
+.page-battle .hud-top,
+.page-battle .hud-bottom {
+  background: var(--px-bg-panel);
+  border-color: var(--px-border);
+  box-shadow: 0 4px 0 var(--px-shadow);
+  backdrop-filter: none;
+}
+
+.page-battle .hud-top { border-bottom: 2px solid var(--px-border); }
+.page-battle .hud-bottom { border-top: 2px solid var(--px-border); }
+
+.page-battle .hud-name { color: var(--px-text-muted); }
+.page-battle .hp-text,
+.page-battle .energy-text { color: var(--px-text-dim); }
+
+.page-battle .hp-bar-bg,
+.page-battle .energy-bar-bg {
+  background: var(--px-bg-inset);
+  border: 2px solid var(--px-border);
+  border-radius: var(--px-radius-sm);
+  height: 14px;
+}
+
+.page-battle .energy-bar-fill {
+  background: linear-gradient(90deg, #8a7010, var(--px-gold-bright));
+  border-radius: 2px;
+}
+
+.page-battle .element-badge {
+  border: 2px solid var(--px-border-light);
+  border-radius: var(--px-radius-sm);
+  background: var(--px-bg-panel-2);
+}
+
+.page-battle .status-badge {
+  background: var(--px-bg-panel-2);
+  border: 2px solid var(--px-border);
+  border-radius: var(--px-radius-sm);
+  color: var(--px-text-muted);
+}
+
+.page-battle .round-timer {
+  color: var(--px-gold-bright);
+  text-shadow: 2px 2px 0 var(--px-shadow);
+}
+
+.page-battle .level-badge {
+  background: var(--px-bg-panel-2);
+  border: 2px solid var(--px-sage);
+  border-radius: var(--px-radius-sm);
+  color: var(--px-sage-light);
+}
+
+.page-battle .boss-badge {
+  background: var(--px-danger-dark);
+  border-color: var(--px-danger);
+  color: var(--px-danger);
+  box-shadow: 0 0 8px rgba(224, 90, 26, 0.4);
+}
+
+.page-battle .your-turn {
+  background: #1a3028;
+  border: 2px solid var(--px-sage);
+  border-radius: var(--px-radius-sm);
+  color: var(--px-sage-light);
+  box-shadow: var(--px-shadow-soft);
+}
+
+.page-battle .opp-turn {
+  background: #301818;
+  border: 2px solid var(--px-danger);
+  border-radius: var(--px-radius-sm);
+  color: #f08060;
+}
+
+/* Felt — green + cosmic blue (matches backcard) */
+.page-battle .table-felt {
+  background:
+    radial-gradient(ellipse 55% 45% at 50% 42%, rgba(58, 106, 154, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse 100% 80% at 50% 50%, var(--px-felt-light) 0%, var(--px-felt-mid) 42%, var(--px-felt-dark) 100%);
+  background-image:
+    radial-gradient(ellipse 55% 45% at 50% 42%, rgba(58, 106, 154, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse 100% 80% at 50% 50%, var(--px-felt-light) 0%, var(--px-felt-mid) 42%, var(--px-felt-dark) 100%),
+    repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(0, 0, 0, 0.04) 4px, rgba(0, 0, 0, 0.04) 8px),
+    repeating-linear-gradient(90deg, transparent, transparent 4px, rgba(0, 0, 0, 0.04) 4px, rgba(0, 0, 0, 0.04) 8px);
+  border-top: 3px solid var(--px-border);
+  box-shadow: inset 0 0 60px rgba(6, 8, 16, 0.5);
+}
+
+.page-battle .table-felt::after {
+  color: rgba(212, 184, 74, 0.05);
+  letter-spacing: 12px;
+}
+
+.page-battle .table-felt::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.04;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.5) 2px,
+    rgba(0, 0, 0, 0.5) 4px
+  );
+}
+
+/* Center zone */
+.page-battle .last-card-label { color: var(--px-text-dim); }
+
+.page-battle .last-card-mini {
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-soft), var(--px-inset);
+}
+
+.page-battle .battle-log {
+  background: var(--px-bg-inset);
+  border: 2px solid var(--px-border);
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-soft), var(--px-inset);
+  backdrop-filter: none;
+}
+
+.page-battle .log-entry { color: var(--px-text-dim); }
+.page-battle .log-entry:last-child { color: var(--px-text-muted); }
+
+.page-battle .deck-pile-count {
+  background: var(--px-bg-panel);
+  border: 2px solid var(--px-cosmic);
+  border-radius: var(--px-radius-sm);
+  color: var(--px-cosmic-bright);
+  box-shadow: 2px 2px 0 var(--px-shadow);
+}
+
+.page-battle .opp-card-back {
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-soft);
+}
+
+.page-battle .opp-card-back img { border-radius: var(--px-radius-sm); }
+
+/* Bottom HUD controls */
+.page-battle .turn-timer-bar {
+  background: var(--px-bg-inset);
+  border: 2px solid var(--px-border);
+  border-radius: var(--px-radius-sm);
+  height: 8px;
+}
+
+.page-battle .turn-timer-fill {
+  background: linear-gradient(90deg, var(--px-sage-dark), var(--px-sage));
+  border-radius: 2px;
+  box-shadow: none;
+}
+
+.page-battle .action-btn,
+.page-battle .btn-primary-game,
+.page-battle .btn-secondary-game,
+.page-battle .pause-btn {
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-soft);
+}
+
+.page-battle .action-btn,
+.page-battle .btn-primary-game {
+  background: linear-gradient(180deg, var(--px-sage-dark) 0%, #2a3a2a 100%);
+  border: 2px solid var(--px-sage);
+}
+
+.page-battle .btn-secondary-game {
+  background: var(--px-bg-panel-2);
+  border: 2px solid var(--px-border);
+  color: var(--px-text-muted);
+}
+
+.page-battle .pause-btn {
+  background: var(--px-bg-panel-2);
+  border: 2px solid var(--px-border);
+}
+
+/* RPS screen */
+.page-battle .round-badge {
+  background: var(--px-bg-panel-2);
+  border: 2px solid var(--px-cosmic);
+  border-radius: var(--px-radius-sm);
+  color: var(--px-cosmic-bright);
+  box-shadow: var(--px-shadow-soft);
+}
+
+.page-battle .rps-title {
+  color: var(--px-text);
+  text-shadow: 2px 2px 0 var(--px-shadow);
+}
+
+.page-battle .rps-card {
+  background: linear-gradient(180deg, var(--px-bg-panel-2) 0%, var(--px-bg-panel) 100%);
+  border: 2px solid var(--px-border);
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-hard);
+}
+
+.page-battle .rps-card:hover {
+  border-color: var(--px-tutorial);
+  box-shadow: 4px 4px 0 var(--px-shadow), 0 0 12px rgba(74, 154, 212, 0.25);
+}
+
+/* Modals & overlays */
+.page-battle .modal-overlay,
+.page-menu .modal-overlay {
+  background: rgba(6, 8, 16, 0.88);
+  backdrop-filter: none;
+}
+
+.page-battle .bag-modal,
+.page-battle .pause-modal {
+  border-radius: var(--px-radius-sm);
+}
+
+.page-battle #screenReward,
+.page-battle #screenGameOver {
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 40%, rgba(58, 106, 154, 0.15) 0%, transparent 60%),
+    var(--px-bg-deep);
+}
+
+.page-battle .reward-subtitle,
+.page-battle .gameover-sub { color: var(--px-text-muted); }
+
+.page-battle .btn-danger-game {
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-soft);
+  border: 2px solid var(--px-quit);
+}
+
+.page-battle .bag-modal,
+.page-battle .pause-modal {
+  background: var(--px-bg-panel);
+  border: 2px solid var(--px-sage);
+  box-shadow: var(--px-shadow-hard), var(--px-inset);
+}
+
+.page-battle .bag-item,
+.page-battle .reward-item {
+  background: var(--px-bg-panel-2);
+  border: 2px solid var(--px-border);
+  border-radius: var(--px-radius-sm);
+  box-shadow: 2px 2px 0 var(--px-shadow);
+}
+
+.page-battle .rarity-legendary { border-color: var(--px-gold) !important; box-shadow: 2px 2px 0 var(--px-shadow), 0 0 8px rgba(212, 184, 74, 0.3) !important; }
+.page-battle .rarity-uncommon { border-color: var(--px-sage) !important; }
+
+.page-battle .reward-title,
+.page-battle .gameover-title {
+  color: var(--px-gold-bright);
+  text-shadow: 2px 2px 0 var(--px-shadow);
+}
+
+.page-battle .fs-prompt {
+  background: var(--px-bg-panel);
+  border: 2px solid var(--px-sage);
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-soft);
+}
+
+/* ===== Tutorial overlays (load before tutorial.css; layout in tutorial.css) ===== */
+.page-tutorial .tut-tooltip {
+  background: var(--px-bg-panel);
+  border: 2px solid var(--px-tutorial);
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-hard), var(--px-inset);
+  color: var(--px-text);
+}
+
+.page-tutorial .tut-tooltip strong { color: var(--px-tutorial); }
+
+.page-tutorial .tut-complete {
+  background: rgba(6, 8, 16, 0.92);
+  backdrop-filter: none;
+}
+
+.page-tutorial .tut-complete-box {
+  background: var(--px-bg-panel);
+  border: 2px solid var(--px-tutorial);
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-hard), var(--px-inset);
+  color: var(--px-text);
+}
+
+.page-tutorial .tut-complete-box h2 { color: var(--px-gold-bright); }
+.page-tutorial .tut-complete-box p { color: var(--px-text-muted); }
+
+.page-tutorial .tut-complete-box .btn-primary-game {
+  background: linear-gradient(180deg, var(--px-sage-dark) 0%, #2a3a2a 100%);
+  border: 2px solid var(--px-sage);
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-soft);
+}
+
+.page-tutorial .tut-continue-btn {
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-soft);
+  background: linear-gradient(180deg, #2a4a6a 0%, #1a3048 100%);
+  border: 2px solid var(--px-tutorial);
+  color: var(--px-text);
+}
+
+.page-tutorial .tut-ring {
+  outline: 3px solid var(--px-tutorial) !important;
+  border-radius: var(--px-radius-sm);
+}
+
+.page-tutorial .modal-overlay { background: rgba(6, 8, 16, 0.88); backdrop-filter: none; }
+
+.page-tutorial .bag-modal {
+  background: var(--px-bg-panel);
+  border: 2px solid var(--px-tutorial);
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-hard), var(--px-inset);
+}
+
+.page-tutorial .bag-item {
+  background: var(--px-bg-panel-2);
+  border: 2px solid var(--px-border);
+  border-radius: var(--px-radius-sm);
+  box-shadow: 2px 2px 0 var(--px-shadow);
+}
+
+.page-tutorial .btn-secondary-game {
+  background: var(--px-bg-panel-2);
+  border: 2px solid var(--px-border);
+  color: var(--px-text-muted);
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-soft);
+}

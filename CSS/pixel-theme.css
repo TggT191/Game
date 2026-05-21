@@ -1,0 +1,119 @@
+/* WildCard pixel theme — menu art hues + cosmic backcard blues + forest felt */
+:root {
+  /* Depth */
+  --px-bg-deep: #0a1020;
+  --px-bg-main: #121a2e;
+  --px-bg-menu: #141c28;
+  --px-bg-panel: #1a2438;
+  --px-bg-panel-2: #222d48;
+  --px-bg-inset: #0c1220;
+
+  /* Wood table (main menu) */
+  --px-wood: #3a2b22;
+  --px-wood-dark: #2a1f18;
+  --px-wood-border: #6a5040;
+  --px-wood-highlight: #8a6850;
+
+  /* Accents — aligned to menu PNG themes */
+  --px-sage: #7c9e7a;
+  --px-sage-dark: #4a6a4a;
+  --px-sage-light: #9ec49c;
+  --px-gold: #d4b84a;
+  --px-gold-bright: #f0d060;
+  --px-cosmic: #3a6a9a;
+  --px-cosmic-bright: #5a9ad4;
+
+  --px-play: #5ab870;
+  --px-tutorial: #4a9ad4;
+  --px-settings: #8a92a8;
+  --px-deck: #9a78d4;
+  --px-quit: #d45a5a;
+
+  /* Battle felt */
+  --px-felt-light: #2a6040;
+  --px-felt-mid: #1a4028;
+  --px-felt-dark: #0c2818;
+  --px-felt-cosmic: #1a3050;
+
+  /* Borders & shadows (hard pixel) */
+  --px-border: #3d4f6e;
+  --px-border-light: #5a7098;
+  --px-border-highlight: #8aa4c8;
+  --px-shadow: #060810;
+  --px-shadow-soft: 3px 3px 0 var(--px-shadow);
+  --px-shadow-hard: 4px 4px 0 var(--px-shadow);
+  --px-inset: inset 0 0 0 1px rgba(138, 164, 200, 0.15);
+
+  /* Text */
+  --px-text: #f0f4ff;
+  --px-text-muted: #9aa8c4;
+  --px-text-dim: #6a7894;
+
+  /* Status */
+  --px-danger: #e05a1a;
+  --px-danger-dark: #8a3010;
+  --px-warning: #e0d000;
+  --px-hp-player: #4a9a4a;
+  --px-hp-opp: #9a4a4a;
+
+  /* Shape */
+  --px-radius-sm: 4px;
+  --px-radius-md: 6px;
+  --px-radius-lg: 8px;
+}
+
+/* Shared pixel panel / button utilities */
+.pixel-panel {
+  background: var(--px-bg-panel);
+  border: 2px solid var(--px-border);
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-hard), var(--px-inset);
+  color: var(--px-text);
+}
+
+.pixel-panel--wood {
+  background: linear-gradient(180deg, var(--px-wood) 0%, var(--px-wood-dark) 100%);
+  border-color: var(--px-wood-border);
+  box-shadow: var(--px-shadow-hard), inset 0 2px 0 var(--px-wood-highlight);
+}
+
+.pixel-title {
+  color: var(--px-text);
+  text-shadow:
+    2px 2px 0 var(--px-shadow),
+    0 0 12px rgba(212, 184, 74, 0.35);
+  letter-spacing: 2px;
+}
+
+.pixel-btn {
+  background: linear-gradient(180deg, var(--px-sage-dark) 0%, #2a3a2a 100%);
+  color: var(--px-text);
+  border: 2px solid var(--px-sage);
+  border-radius: var(--px-radius-sm);
+  box-shadow: var(--px-shadow-soft);
+  cursor: pointer;
+  transition: transform 0.1s ease, filter 0.1s ease, box-shadow 0.1s ease;
+  image-rendering: pixelated;
+}
+
+.pixel-btn:hover:not(:disabled) {
+  filter: brightness(1.12);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--px-shadow);
+}
+
+.pixel-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--px-shadow);
+}
+
+.pixel-btn--gold {
+  border-color: var(--px-gold);
+  background: linear-gradient(180deg, #5a5020 0%, #3a3818 100%);
+  color: var(--px-gold-bright);
+}
+
+.pixel-btn--danger {
+  border-color: var(--px-quit);
+  background: linear-gradient(180deg, #5a2828 0%, #3a1818 100%);
+}

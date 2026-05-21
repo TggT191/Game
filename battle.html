@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Bootstrap/bootstrap-5.3.8-dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="CSS/battle.css">
+  <title>WildCard - Battle</title>
+  </head>
+<body data-wc-page="battle">
+<!-- RPS -->
+<div id="screenRPS" class="battle-screen">
+  <div class="rps-wrapper">
+    <div class="round-badge" id="rpsBadge">Round 1</div>
+    <h2 class="rps-title">ROCK PAPER SCISSORS</h2>
+    <p class="rps-subtitle" id="rpsSubtitle">Make a choice, choose wisely.</p>
+    <div class="rps-choices" id="rpsChoices">
+      <div class="rps-card" onclick="playRPS('rock')"><div class="rps-icon">&#x270A;</div><div class="rps-label">Rock</div></div>
+      <div class="rps-card" onclick="playRPS('paper')"><div class="rps-icon">&#x270B;</div><div class="rps-label">Paper</div></div>
+      <div class="rps-card" onclick="playRPS('scissors')"><div class="rps-icon">&#x270C;&#xFE0F;</div><div class="rps-label">Scissors</div></div>
+    </div>
+    <div class="rps-result hidden" id="rpsResult">
+      <div class="rps-reveal">
+        <div class="rps-side"><div class="rps-reveal-icon" id="playerRPSIcon"></div><div class="rps-reveal-label">You</div></div>
+        <div class="rps-vs">VS</div>
+        <div class="rps-side"><div class="rps-reveal-icon" id="aiRPSIcon"></div><div class="rps-reveal-label">Opponent</div></div>
+      </div>
+      <div class="rps-outcome" id="rpsOutcome"></div>
+      <button class="btn-primary-game hidden" id="rpsContinueBtn" onclick="startBattle()">Start Battle</button>
+    </div>
+  </div>
+</div>
+
+<!-- Battle -->
+<div id="screenBattle" class="battle-screen hidden">
+
+  <!-- Top HUD -->
+  <div class="hud-top">
+    <div class="hud-left">
+      <div class="hud-name-row">
+        <span class="hud-name" id="opponentName">Opponent</span>
+        <span class="element-badge" id="opponentElementBadge">🌑</span>
+      </div>
+      <div class="hp-bar-wrap">
+        <div class="hp-bar-bg"><div class="hp-bar-fill opponent-hp" id="opponentHPBar"></div></div>
+        <span class="hp-text" id="opponentHPText">150/150</span>
+      </div>
+      <div class="status-badges" id="opponentStatus"></div>
+    </div>
+    <div class="hud-center">
+      <div class="round-timer" id="roundTimer">10:00</div>
+      <div class="round-info">
+        <span id="roundLabel">Round 1</span>
+        <span id="levelLabel" class="level-badge">Level 1 Normal</span>
+      </div>
+      <div class="turn-info" id="turnInfo">YOUR TURN</div>
+    </div>
+    <div class="hud-right">
+      <div class="hud-name-row hud-name-row-right">
+        <span class="element-badge" id="playerElementBadge">🔥</span>
+        <span class="hud-name">You</span>
+      </div>
+      <div class="hp-bar-wrap">
+        <div class="hp-bar-bg"><div class="hp-bar-fill player-hp" id="playerHPBar"></div></div>
+        <span class="hp-text" id="playerHPText">250/250</span>
+      </div>
+      <div class="energy-bar-wrap">
+        <div class="energy-bar-bg"><div class="energy-bar-fill" id="playerEnergyBar"></div></div>
+        <span class="energy-text" id="playerEnergyText">150/150</span>
+      </div>
+      <div class="status-badges" id="playerStatus"></div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-felt">
+
+    <!-- Opponent hand -->
+    <div class="opp-fan-area">
+      <div class="opp-fan" id="opponentHand"></div>
+    </div>
+
+    <!-- Center -->
+    <div class="center-zone">
+      <!-- Opponent last card (left) -->
+      <div class="last-card-panel" id="lastCardOpponent">
+        <div class="last-card-label">Opponent's Last</div>
+        <div class="last-card-display" id="lastCardOpponentDisplay">
+          <span class="last-card-empty">—</span>
+        </div>
+      </div>
+
+      <div class="battle-log" id="battleLog"><div class="log-entry">Battle started!</div></div>
+
+      <button type="button" class="deck-pile" id="deckPile" onclick="addOneCardToHand(false)" title="Draw 1 card from your deck (∞)">
+        <div class="deck-pile-cards">
+          <div class="deck-pile-card deck-pile-card--back"><img src="Images/Backcard.png" alt="" aria-hidden="true"></div>
+          <div class="deck-pile-card deck-pile-card--mid"><img src="Images/Backcard.png" alt="" aria-hidden="true"></div>
+          <div class="deck-pile-card deck-pile-card--top"><img src="Images/Backcard.png" alt="" aria-hidden="true"></div>
+        </div>
+        <span class="deck-pile-count" id="deckPileCount">∞</span>
+      </button>
+
+      <!-- Player last card (right) -->
+      <div class="last-card-panel" id="lastCardPlayer">
+        <div class="last-card-label">Your Last</div>
+        <div class="last-card-display" id="lastCardPlayerDisplay">
+          <span class="last-card-empty">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Player hand -->
+    <div class="player-fan-area">
+      <div class="player-fan" id="playerHand"></div>
+    </div>
+
+  </div>
+
+  <!-- Bottom HUD -->
+  <div class="hud-bottom">
+    <div class="turn-timer-bar">
+      <div class="turn-timer-fill" id="turnTimerFill"></div>
+    </div>
+    <div class="action-row">
+      <div class="action-buttons" id="actionButtons">
+        <button class="action-btn" id="btnShuffle" onclick="addOneCardToHand(true)" title="Same draw logic; random card from pool and uses your turn">🔀 Shuffle</button>
+        <button class="action-btn" id="btnUseItem" onclick="openBag()">🎒 Items <span id="bagCount">(0)</span></button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="turn-timer-text" id="turnTimerText">1:00</span>
+        <button class="pause-btn" onclick="openPause()">⏸</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bag modal -->
+<div class="modal-overlay hidden" id="bagModal" onclick="closeBagOutside(event)">
+  <div class="bag-modal">
+    <h3 class="modal-title">&#x1F392; Item Bag</h3>
+    <div class="bag-grid" id="bagGrid"></div>
+    <button class="btn-secondary-game" onclick="closeBag()">Close</button>
+  </div>
+</div>
+
+<!-- Reward screen -->
+<div id="screenReward" class="battle-screen hidden">
+  <div class="reward-wrapper">
+    <h2 class="reward-title">&#x1F3C6; Round Complete!</h2>
+    <p class="reward-subtitle" id="rewardSubtitle">Choose 1 item reward:</p>
+    <div class="reward-items" id="rewardItems"></div>
+    <div class="discard-section hidden" id="discardSection">
+      <p class="discard-msg">Your bag is full! Discard an item to make room:</p>
+      <div class="bag-grid" id="discardGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Game over -->
+<div id="screenGameOver" class="battle-screen hidden">
+  <div class="gameover-wrapper">
+    <h2 class="gameover-title" id="gameOverTitle">GAME OVER</h2>
+    <p class="gameover-sub" id="gameOverSub">You were defeated.</p>
+    <div class="gameover-btns">
+      <button class="btn-primary-game" onclick="tryAgain()">Try Again</button>
+      <button class="btn-secondary-game" onclick="goMainMenu()">Main Menu</button>
+    </div>
+  </div>
+</div>
+
+<!-- Overlays -->
+<div class="attack-flash" id="attackFlash"></div>
+<div id="fsPrompt" class="fs-prompt hidden" onclick="restoreFullscreen()">🖥️ Click to restore fullscreen</div>
+
+<!-- Pause -->
+<div class="modal-overlay hidden" id="pauseModal">
+  <div class="pause-modal">
+    <h2 class="modal-title">⏸ Paused</h2>
+    <button class="btn-primary-game" onclick="closePause()">▶ Resume</button>
+    <button class="btn-danger-game btn-leave" onclick="leaveGame()">🚪 Leave Game</button>
+  </div>
+</div>
+
+<script>
+// Data
+const ALL_CARDS = [
+  {id:'flame_burst',name:'Flame Burst',element:'Fire',energy:1,damage:15,damageType:'single',effect:'burn50'},
+  {id:'inferno_slash',name:'Inferno Slash',element:'Fire',energy:3,damage:60,damageType:'single',effect:'selfdmg10'},
+  {id:'wildfire',name:'Wildfire',element:'Fire',energy:4,damage:25,damageType:'single',effect:'burn_chance'},
+  {id:'aqua_shot',name:'Aqua Shot',element:'Water',energy:1,damage:50,damageType:'single',effect:''},
+  {id:'tidal_wave',name:'Tidal Wave',element:'Water',energy:3,damage:35,damageType:'single',effect:'slow'},
+  {id:'healing_rain',name:'Healing Rain',element:'Water',energy:2,damage:0,damageType:'heal',effect:'heal25'},
+  {id:'vine_whip',name:'Thorn Lash',element:'Grass',energy:1,damage:30,damageType:'single',effect:''},
+  {id:'poison_spores',name:'Poison Spores',element:'Grass',energy:2,damage:40,damageType:'single',effect:'poison'},
+  {id:'root_trap',name:'Root Trap',element:'Grass',energy:3,damage:50,damageType:'single',effect:'stun50'},
+  {id:'thunder_strike',name:'Volt Lance',element:'Lightning',energy:2,damage:30,damageType:'single',effect:''},
+  {id:'static_field',name:'Static Field',element:'Lightning',energy:3,damage:100,damageType:'single',effect:'stun_chance'},
+  {id:'overcharge',name:'Overcharge',element:'Lightning',energy:2,damage:0,damageType:'buff',effect:'buff_crit'},
+  {id:'rock_smash',name:'Gravel Break',element:'Earth',energy:2,damage:25,damageType:'single',effect:''},
+  {id:'stone_wall',name:'Stone Wall',element:'Earth',energy:2,damage:0,damageType:'buff',effect:'defense'},
+  {id:'earthquake',name:'Tremor Call',element:'Earth',energy:4,damage:45,damageType:'single',effect:''},
+  {id:'air_slash',name:'Gust Blade',element:'Wind',energy:1,damage:25,damageType:'single',effect:'fast'},
+  {id:'tornado',name:'Spiral Gale',element:'Wind',energy:3,damage:20,damageType:'multi3',effect:''},
+  {id:'tailwind',name:'Tailwind',element:'Wind',energy:2,damage:0,damageType:'buff',effect:'buff_speed'},
+  {id:'holy_beam',name:'Prism Beam',element:'Light',energy:3,damage:50,damageType:'single',effect:''},
+  {id:'divine_shield',name:'Ward Halo',element:'Light',energy:2,damage:0,damageType:'buff',effect:'shield75'},
+  {id:'sanctuary',name:'Safe Haven',element:'Light',energy:4,damage:0,damageType:'heal',effect:'heal_shield'},
+  {id:'shadow_strike',name:'Umbral Cut',element:'Dark',energy:2,damage:50,damageType:'single',effect:''},
+  {id:'blood_pact',name:'Siphon Strike',element:'Dark',energy:3,damage:60,damageType:'single',effect:'selfdmg15'},
+  {id:'void_explosion',name:'Void Rift',element:'Dark',energy:5,damage:80,damageType:'single',effect:'both_dmg'}
+];
+
+const ALL_ITEMS = [
+  {id:'small_potion',name:'Minor Elixir',icon:'🧪',rarity:'common',desc:'Restore 50 HP.',type:'heal',value:50},
+  {id:'mega_potion',name:'Greater Elixir',icon:'🧪',rarity:'uncommon',desc:'Restore 100 HP.',type:'heal',value:100},
+  {id:'regen_herb',name:'Regen Herb',icon:'🌿',rarity:'common',desc:'Heal 25 HP at the start of each turn for 3 turns.',type:'regen',value:25,turns:3},
+  {id:'iron_shield',name:'Iron Shield',icon:'🛡',rarity:'common',desc:'Reduce incoming damage by 50% for 1 hit.',type:'shield',value:0.5,turns:1},
+  {id:'holy_barrier',name:'Holy Barrier',icon:'✨',rarity:'uncommon',desc:'Completely block the next attack.',type:'barrier',value:0},
+  {id:'stone_skin',name:'Stone Skin',icon:'🪨',rarity:'common',desc:'Reduce all incoming damage by 25% for 3 turns.',type:'defense',value:0.25,turns:3},
+  {id:'flame_oil',name:'Flame Oil',icon:'🔥',rarity:'common',desc:'Your next Fire attack will always inflict Burn.',type:'buff_burn',value:0},
+  {id:'voltage_core',name:'Voltage Core',icon:'⚡',rarity:'uncommon',desc:'Your next Lightning attack deals 50% more damage.',type:'buff_lightning',value:0.5},
+  {id:'freeze_bomb',name:'Freeze Bomb',icon:'❄',rarity:'uncommon',desc:'50% chance to freeze the opponent for 1 turn.',type:'freeze',value:0.5},
+  {id:'dark_crystal',name:'Dark Crystal',icon:'🌑',rarity:'uncommon',desc:'Double your next attack\'s damage. Take 10 recoil.',type:'double_atk',value:2},
+  {id:'purify_potion',name:'Purify Potion',icon:'✨',rarity:'common',desc:'Remove all active debuffs from yourself.',type:'purify',value:0},
+  {id:'energy_water',name:'Energy Water',icon:'💧',rarity:'common',desc:'Restore 30 Energy.',type:'energy',value:30},
+  {id:'speed_feather',name:'Speed Feather',icon:'🌪',rarity:'uncommon',desc:'50% chance to take an extra turn immediately.',type:'extra_turn',value:0},
+  {id:'shuffle_scroll',name:'Shuffle Scroll',icon:'🎴',rarity:'common',desc:'Draw cards until your hand is full. Does not cost a turn.',type:'shuffle',value:0},
+  {id:'draw_tome',name:'Draw Tome',icon:'📖',rarity:'uncommon',desc:'Draw 2 extra cards from the deck.',type:'draw',value:2},
+  {id:'recall_orb',name:'Recall Orb',icon:'🔄',rarity:'uncommon',desc:'Return the last card you played back to your hand.',type:'recall',value:0},
+  {id:'poison_bottle',name:'Poison Bottle',icon:'☠',rarity:'common',desc:'Inflict Poison on the opponent for 3 turns.',type:'debuff_poison',value:0},
+  {id:'freeze_trap',name:'Freeze Trap',icon:'❄',rarity:'common',desc:'40% chance to stun the opponent for 1 turn.',type:'debuff_stun',value:0.4},
+  {id:'smoke_bomb',name:'Smoke Bomb',icon:'🌫',rarity:'common',desc:'Reduce the opponent\'s accuracy by 30% for 3 turns.',type:'debuff_acc',value:0.3},
+  {id:'phoenix_feather',name:'Cinder Plume',icon:'👑',rarity:'legendary',desc:'Automatically revive once with 30% HP when defeated.',type:'revive',value:0.3},
+  {id:'master_ball',name:'Mirror Core',icon:'🔮',rarity:'legendary',desc:'Copy the opponent\'s last used card and add it to your hand.',type:'master_ball',value:0},
+  {id:'chaos_dice',name:'Chaos Dice',icon:'🌌',rarity:'legendary',desc:'Roll the dice: huge heal, massive damage, a strong buff, or a crippling debuff.',type:'chaos',value:0}
+];
+
+const ELEMENT_ICONS = {Fire:'🔥',Water:'💧',Grass:'🌿',Lightning:'⚡',Earth:'🪨',Wind:'🌪',Light:'✨',Dark:'🌑'};
+const ELEMENT_COLORS = {
+  Fire:{bg:'#3a1a0a',border:'#c0440a',badge:'#e05a1a'},
+  Water:{bg:'#0a1a3a',border:'#0a60c0',badge:'#1a80e0'},
+  Grass:{bg:'#0a2a0a',border:'#2a8a2a',badge:'#3aaa3a'},
+  Lightning:{bg:'#2a2a0a',border:'#c0b000',badge:'#e0d000'},
+  Earth:{bg:'#2a1a0a',border:'#8a5a2a',badge:'#aa7a3a'},
+  Wind:{bg:'#0a2a2a',border:'#2aaaa0',badge:'#3acac0'},
+  Light:{bg:'#2a2a1a',border:'#c0c060',badge:'#e0e080'},
+  Dark:{bg:'#1a0a2a',border:'#6a2a9a',badge:'#8a3aba'}
+};
+
+// Type chart: attacker element -> {strong:[],weak:[]}
+// Note: Dark is handled by hardcoded logic in getMultiplier (always 2x attacker, 2x defender)
+const TYPE_CHART = {
+  Fire:      {strong:['Grass','Wind'],    weak:['Water','Earth']},
+  Water:     {strong:['Fire','Earth'],    weak:['Grass','Lightning']},
+  Grass:     {strong:['Water','Earth'],   weak:['Fire','Wind']},
+  Lightning: {strong:['Water','Wind'],    weak:['Earth']},
+  Earth:     {strong:['Fire','Lightning'],weak:['Water','Grass']},
+  Wind:      {strong:['Grass','Lightning'],weak:['Fire','Earth']},
+  Light:     {strong:['Dark'],            weak:['Dark']}
+};
+
+function getMultiplier(attackerEl, defenderEl) {
+  if (attackerEl === 'Neutral' || defenderEl === 'Neutral') return 1;
+  // Dark: always deals 2x, always takes 2x
+  if (attackerEl === 'Dark') return 2;
+  if (defenderEl === 'Dark') return 2;
+  if (defenderEl === 'Light') return 0.5;
+  const chart = TYPE_CHART[attackerEl];
+  if (!chart) return 1;
+  if (chart.strong.includes(defenderEl)) return 2;
+  if (chart.weak.includes(defenderEl)) return 0.5;
+  return 1;
+}
+
+// State
+let round = 1;
+let firstTurn = 'player'; // from URL param
+let currentTurn = 'player';
+let playerHP = 250, playerMaxHP = 250;
+let playerEnergy = 150, playerMaxEnergy = 150;
+let opponentHP = 250, opponentMaxHP = 250;
+let playerHand = [], opponentHand = [];
+let playerDeck = []; // full deck pool
+let playerUsedCards = [];
+let playerBag = []; // items
+let playerElement = 'Neutral';
+let opponentElement = 'Neutral';
+let playerStatus = {}; // {burn:0,poison:0,stun:0,shield:0,regen:0,defense:0,critBuff:false,barrier:false,doubleatk:false,burnBuff:false,lightningBuff:false,smokeAcc:0,slow:0}
+let opponentStatus = {};
+let roundTimerSec = 600; // 10 min
+let turnTimerSec = 60;
+let roundTimerInterval = null;
+let turnTimerInterval = null;
+let pendingRewardItems = [];
+let pendingDiscardCallback = null;
+let phoenixUsed = false;
+let poisonStacks = {player:0, opponent:0};
+let cardplayLocked = false;
+let playerLastCard = null;
+let opponentLastCard = null; // last card played by opponent
+let savedDeckSource = [];
+
+// Init
+window.onload = function() {
+  // Apply saved settings (fullscreen persists across pages)
+  if (localStorage.getItem('fullscreen') === '1') {
+    document.documentElement.requestFullscreen().catch(()=>{});
+  }
+  // Items: fresh bag on new game (round 1), carry over between rounds only (sessionStorage)
+  if (round === 1 && !sessionStorage.getItem('gameStarted')) {
+    playerBag = [];
+    saveItems();
+    sessionStorage.setItem('gameStarted', '1');
+  } else {
+    try { playerBag = JSON.parse(localStorage.getItem('wildcardItems') || '[]'); } catch(e){ playerBag=[]; }
+  }
+  const params = new URLSearchParams(window.location.search);
+  firstTurn = params.get('first') || 'player';
+  round = parseInt(params.get('round') || '1');
+  showScreen('screenRPS');
+  updateRPSBadge();
+};
+
+function updateRPSBadge() {
+  document.getElementById('rpsBadge').textContent = 'Round ' + round;
+  const isBoss = round % 5 === 0;
+  document.getElementById('rpsSubtitle').textContent = isBoss ? 'BOSS BATTLE! Make a choice, choose wisely.' : 'Make a choice, choose wisely.';
+}
+
+// Screens
+function showScreen(id) {
+  document.querySelectorAll('.battle-screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+// RPS
+const RPS_ICONS = {rock:'✊',paper:'✋',scissors:'✌️'};
+const RPS_OPTIONS = ['rock','paper','scissors'];
+
+function playRPS(pick) {
+  const aiPick = RPS_OPTIONS[Math.floor(Math.random()*3)];
+  document.getElementById('playerRPSIcon').textContent = RPS_ICONS[pick];
+  document.getElementById('aiRPSIcon').textContent = RPS_ICONS[aiPick];
+  let outcome, text;
+  if (pick === aiPick) { outcome='tie'; text="🤝 It's a tie! Play again..."; }
+  else if ((pick==='rock'&&aiPick==='scissors')||(pick==='scissors'&&aiPick==='paper')||(pick==='paper'&&aiPick==='rock')) {
+    outcome='win'; firstTurn='player'; text='PLAYER FIRST TURN!';
+  } else {
+    outcome='lose'; firstTurn='ai'; text='OPPONENT FIRST TURN!';
+  }
+  sessionStorage.setItem('nextFirstTurn', firstTurn);
+  document.getElementById('rpsOutcome').textContent = text;
+  document.getElementById('rpsChoices').classList.add('hidden');
+  document.getElementById('rpsResult').classList.remove('hidden');
+  if (outcome==='tie') {
+    document.getElementById('rpsContinueBtn').classList.add('hidden');
+    setTimeout(()=>{
+      document.getElementById('rpsChoices').classList.remove('hidden');
+      document.getElementById('rpsResult').classList.add('hidden');
+    },1800);
+  } else {
+    document.getElementById('rpsContinueBtn').classList.remove('hidden');
+  }
+}
+
+// Start battle
+function startBattle() {
+  currentTurn = firstTurn;
+  playerHP = 250; playerMaxHP = 250;
+  playerEnergy = 150; playerMaxEnergy = 150;
+  playerStatus = {burn:0,poison:0,stun:0,shield:0,regen:0,regenHeal:25,defense:0,critBuff:false,barrier:false,doubleatk:false,burnBuff:false,lightningBuff:false,smokeAcc:0,smokeTurns:0,slow:0};
+  opponentStatus = {burn:0,poison:0,stun:0,shield:0,regen:0,regenHeal:25,defense:0,critBuff:false,barrier:false,doubleatk:false,burnBuff:false,lightningBuff:false,smokeAcc:0,smokeTurns:0,slow:0};
+  poisonStacks = {player:0,opponent:0};
+  playerElement = 'Neutral';
+  opponentElement = 'Neutral';
+  playerLastCard = null;
+  opponentLastCard = null;
+
+  const isBoss = round % 5 === 0;
+  const lvl = Math.ceil(round / 5);
+  opponentMaxHP = isBoss ? 500 : 250;
+  opponentHP = opponentMaxHP;
+
+  // Determine opponent element randomly — set when first card is played
+
+  // Build player deck
+  const saved = localStorage.getItem('wildcardDeck');
+  let savedDeck = [];
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      parsed.forEach(e => {
+        const card = ALL_CARDS.find(c => c.id === e.card.id);
+        if (card) for (let i = 0; i < e.count; i++) savedDeck.push({...card});
+      });
+    } catch(err) {}
+  }
+
+  if (savedDeck.length > 0) {
+    savedDeckSource = [...savedDeck]; // store for infinite reshuffling
+    playerDeck = shuffle([...savedDeck]);
+    addLog('Using your saved deck (' + savedDeck.length + ' cards).');
+  } else {
+    savedDeckSource = []; // will use ALL_CARDS on refill
+    playerDeck = shuffle([...ALL_CARDS].map(c => ({...c})));
+    addLog('No saved deck found — using random cards.');
+  }
+  playerHand = playerDeck.splice(0, Math.min(7, playerDeck.length));
+  playerUsedCards = [];
+
+  // Opponent hand: 7 random cards
+  opponentHand = shuffle([...ALL_CARDS].map(c=>({...c}))).slice(0,7);
+
+  // UI
+  const opName = isBoss ? 'BOSS' : ('Opponent Lv'+lvl);
+  document.getElementById('opponentName').textContent = opName;
+  document.getElementById('roundLabel').textContent = 'Round ' + round;
+  document.getElementById('levelLabel').textContent = isBoss ? 'BOSS' : 'Level '+lvl;
+  document.getElementById('levelLabel').className = 'level-badge' + (isBoss?' boss-badge':'');
+
+  updateHPBars();
+  updateEnergyBar();
+  renderPlayerHand();
+  renderOpponentHand();
+  updateBagCount();
+  renderStatusBadges();
+  updateDeckPileCount();
+  updateElementBadges();
+
+  setupDeckPileClick();
+  showScreen('screenBattle');
+  startRoundTimer(true);
+
+  if (currentTurn === 'player') {
+    startPlayerTurn();
+
+  } else {
+    setTurnInfo('OPPONENT TURN');
+    disableActions();
+    setTimeout(()=>doOpponentTurn(), 1500);
+  }
+}
+
+function shuffle(arr) {
+  for (let i=arr.length-1;i>0;i--) {
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+// Timers
+function tickRoundTimer() {
+  const m = Math.floor(roundTimerSec / 60), s = roundTimerSec % 60;
+  document.getElementById('roundTimer').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+function startRoundTimer(reset) {
+  if (reset) roundTimerSec = 600;
+  clearInterval(roundTimerInterval);
+  tickRoundTimer();
+  roundTimerInterval = setInterval(() => {
+    roundTimerSec--;
+    tickRoundTimer();
+    if (roundTimerSec <= 0) { clearInterval(roundTimerInterval); timeOut(); }
+  }, 1000);
+}
+
+function resumeRoundTimer() { startRoundTimer(); }
+
+function startTurnTimer() {
+  turnTimerSec = 60;
+  resumeTurnTimer();
+}
+
+function resumeTurnTimer() {
+  clearInterval(turnTimerInterval);
+  const fill = document.getElementById('turnTimerFill');
+  const text = document.getElementById('turnTimerText');
+  // Update display immediately
+  const pct = (turnTimerSec / 60) * 100;
+  fill.style.width = pct + '%';
+  fill.style.background = pct > 50 ? '#7c9e7a' : pct > 25 ? '#e0d000' : '#e05a1a';
+  text.textContent = '0:' + (turnTimerSec < 10 ? '0' : '') + turnTimerSec;
+
+  turnTimerInterval = setInterval(() => {
+    turnTimerSec--;
+    const p = (turnTimerSec / 60) * 100;
+    fill.style.width = p + '%';
+    fill.style.background = p > 50 ? '#7c9e7a' : p > 25 ? '#e0d000' : '#e05a1a';
+    text.textContent = '0:' + (turnTimerSec < 10 ? '0' : '') + turnTimerSec;
+    if (turnTimerSec <= 0) { clearInterval(turnTimerInterval); endPlayerTurn(); }
+  }, 1000);
+}
+
+function stopTurnTimer() { clearInterval(turnTimerInterval); }
+
+function timeOut() {
+  addLog('Time ran out! You lose!');
+  endGame(false);
+}
+
+// Player turn
+function trySlowSkip(who) {
+  const st = who === 'player' ? playerStatus : opponentStatus;
+  const name = who==='player'?'You':'Opponent';
+  if (st.slow > 0 && Math.random() < 0.4) {
+    st.slow--;
+    addLog(name + ' is too slow and skips this turn!');
+    renderStatusBadges();
+    return true;
+  }
+  return false;
+}
+
+function startPlayerTurn() {
+  setTurnInfo('YOUR TURN');
+  applyStartOfTurnEffects('player');
+
+  if (trySlowSkip('player')) {
+    disableActions();
+    setTimeout(() => endPlayerTurn(), 1800);
+    return;
+  }
+
+  if (playerStatus.stun > 0) {
+    playerStatus.stun--;
+    addLog('You are stunned! Skipping turn.');
+    renderStatusBadges();
+    disableActions();
+    // Make sure cards are also unclickable
+    document.querySelectorAll('.hand-card').forEach(c => c.style.pointerEvents = 'none');
+    setTimeout(() => endPlayerTurn(), 1800);
+    return;
+  }
+
+  enableActions();
+  if (playerHand.length === 0) {
+    autoRefillHand(() => startTurnTimer());
+  } else {
+    startTurnTimer();
+  }
+}
+
+function endPlayerTurn() {
+  stopTurnTimer();
+  disableActions();
+  document.querySelectorAll('.hand-card').forEach(c=>c.classList.remove('selected'));
+  currentTurn = 'ai';
+  setTurnInfo('OPPONENT TURN');
+  setTimeout(()=>doOpponentTurn(), 1200);
+}
+
+function enableActions() {
+  document.getElementById('actionButtons').querySelectorAll('button').forEach(b=>b.disabled=false);
+  const pile = document.getElementById('deckPile');
+  if (pile) pile.disabled = false;
+  document.querySelectorAll('.hand-card').forEach(c=>c.style.pointerEvents='');
+}
+
+function disableActions() {
+  document.getElementById('actionButtons').querySelectorAll('button').forEach(b=>b.disabled=true);
+  const pile = document.getElementById('deckPile');
+  if (pile) pile.disabled = true;
+  document.querySelectorAll('.hand-card').forEach(c=>c.style.pointerEvents='none');
+}
+
+function setTurnInfo(text) {
+  const el = document.getElementById('turnInfo');
+  const isPlayer = text.includes('YOUR');
+  el.textContent = (isPlayer ? '🟢 ' : '🔴 ') + text;
+  el.className = 'turn-info ' + (isPlayer ? 'your-turn' : 'opp-turn');
+}
+
+// Player actions
+function playCard(index) {
+  // Only allow during player turn
+  if (currentTurn !== 'player') return;
+  if (cardplayLocked) return;
+  cardplayLocked = true;
+  const card = playerHand[index];
+  if (!card) { cardplayLocked = false; return;}
+  if (playerEnergy < card.energy) { addLog('Not enough energy!'); cardplayLocked = false; return;}
+
+  stopTurnTimer();
+  document.querySelectorAll('.hand-card').forEach(c=>c.classList.remove('selecting'));
+  // Animate the card flying up
+  const cardEl = document.querySelectorAll('.hand-card')[index];
+  animateCardPlay(cardEl, () => {
+    playerEnergy -= card.energy;
+    playerHand.splice(index,1);
+    playerUsedCards.push(card);
+    playerLastCard = card;
+    updateLastCardDisplay('player', card);
+
+    cardplayLocked = false;
+
+    playerElement = card.element;
+    updateElementBadges();
+
+    const wrapUpPlay = () => {
+      updateEnergyBar();
+      updateHPBars();
+      renderStatusBadges();
+      updateDeckPileCount();
+      if (opponentHP <= 0) { clearInterval(roundTimerInterval); winRound(); return; }
+      if (playerHP <= 0) { clearInterval(roundTimerInterval); checkDeath('player'); return; }
+      tryAutoRefillHand(() => endPlayerTurn());
+    };
+
+    if (card.damageType !== 'heal' && card.damageType !== 'buff') {
+      playAttackAnimation(card.element, 'opponent', () => {
+        applyCardEffect(card, 'player', 'opponent');
+        wrapUpPlay();
+      });
+    } else {
+      applyCardEffect(card, 'player', 'opponent');
+      wrapUpPlay();
+    }
+  });
+}
+
+function tryAutoRefillHand(thenFn) {
+  if (playerHand.length > 0) {
+    renderPlayerHand();
+    if (thenFn) thenFn();
+    return;
+  }
+  autoRefillHand(() => {
+    renderPlayerHand();
+    if (thenFn) thenFn();
+  });
+}
+
+/** Deck pile (false) = 1 card from your deck, no turn end. Shuffle (true) = 1 random from pool, ends turn. */
+function addOneCardToHand(fromShuffle) {
+  if (currentTurn !== 'player' || cardplayLocked) {
+    addLog(fromShuffle ? 'You can only shuffle on your turn.' : 'You can only draw on your turn.');
+    return;
+  }
+
+  let card = null;
+  if (fromShuffle) {
+    card = {...ALL_CARDS[Math.floor(Math.random() * ALL_CARDS.length)]};
+  } else {
+    if (playerDeck.length === 0) refillDeck();
+    if (playerDeck.length === 0) {
+      addLog('Your deck is empty!');
+      return;
+    }
+    card = playerDeck.splice(0, 1)[0];
+    if (!card) {
+      refillDeck();
+      card = playerDeck.splice(0, 1)[0];
+      if (!card) {
+        addLog('Could not draw from deck.');
+        return;
+      }
+    }
+  }
+
+  const handFull = playerHand.length >= 7;
+  const replaceIdx = handFull ? Math.floor(Math.random() * playerHand.length) : -1;
+  const swappedName = replaceIdx >= 0 ? playerHand[replaceIdx].name : '';
+
+  const pile = document.getElementById('deckPile');
+  const btn = fromShuffle ? document.getElementById('btnShuffle') : null;
+  if (fromShuffle) {
+    if (btn) btn.disabled = true;
+    cardplayLocked = true;
+  }
+  if (pile) pile.classList.add(fromShuffle ? 'shuffling' : 'drawing');
+
+  if (replaceIdx >= 0) {
+    const oldEl = document.querySelectorAll('.hand-card')[replaceIdx];
+    if (oldEl) oldEl.classList.add('hand-card--swap-out');
+  }
+
+  const finish = () => {
+    if (replaceIdx >= 0) {
+      playerHand[replaceIdx] = card;
+      addLog(fromShuffle
+        ? 'Hand full — replaced ' + swappedName + ' with ' + card.name + ' (' + card.element + ').'
+        : 'Drew from deck — replaced ' + swappedName + ' with ' + card.name + '.');
+    } else {
+      playerHand.push(card);
+      addLog(fromShuffle
+        ? 'Shuffled — added ' + card.name + ' (' + card.element + ').'
+        : 'Drew ' + card.name + ' from your deck.');
+    }
+    renderPlayerHand();
+    if (replaceIdx >= 0) {
+      const newEl = document.querySelectorAll('.hand-card')[replaceIdx];
+      if (newEl) {
+        newEl.classList.add('hand-card--swap-in');
+        setTimeout(() => newEl.classList.remove('hand-card--swap-in'), 650);
+      }
+    }
+    if (pile) pile.classList.remove('shuffling', 'drawing');
+    if (btn) btn.disabled = false;
+    cardplayLocked = false;
+    updateDeckPileCount();
+    endPlayerTurn();
+  };
+
+  setTimeout(() => {
+    animateFlyFromDeck(1, finish);
+  }, handFull ? 280 : 200);
+}
+
+function autoRefillHand(callback) {
+  // When all hand cards are used: auto-deal from user deck (reshuffled if empty)
+  if (playerHand.length > 0) {
+    if (callback) callback();
+    return;
+  }
+  if (playerDeck.length === 0) refillDeck();
+
+  const drawCount = Math.min(7, playerDeck.length);
+  if (drawCount <= 0) {
+    if (callback) callback();
+    return;
+  }
+
+  const pile = document.getElementById('deckPile');
+  if (pile) pile.classList.add('drawing');
+
+  const finish = () => {
+    const drawn = playerDeck.splice(0, drawCount);
+    playerHand = drawn;
+    const deckLabel = savedDeckSource.length > 0 ? 'your deck' : 'the deck';
+    addLog('Hand empty — auto-dealt ' + drawCount + ' card(s) from ' + deckLabel + '.');
+    updateDeckPileCount();
+    if (pile) pile.classList.remove('drawing');
+    if (callback) callback();
+  };
+
+  animateFlyFromDeck(drawCount, finish);
+}
+
+function refillDeck() {
+  const source = savedDeckSource.length > 0
+    ? savedDeckSource.map(c => ({...c}))
+    : ALL_CARDS.map(c => ({...c}));
+  playerDeck = shuffle(source);
+  if (savedDeckSource.length > 0) {
+    addLog('Your deck reshuffled — ' + playerDeck.length + ' card(s) ready.');
+  } else {
+    addLog('Deck reshuffled! (' + playerDeck.length + ' cards)');
+  }
+  updateDeckPileCount();
+}
+
+// Card effects
+function applyCardEffect(card, attacker, defender) {
+  const atkStatus = attacker==='player'?playerStatus:opponentStatus;
+  const defStatus = defender==='player'?playerStatus:opponentStatus;
+  let dmg = card.damage;
+
+  // Multipliers
+  const atkEl = attacker==='player'?playerElement:opponentElement;
+  const defEl = defender==='player'?playerElement:opponentElement;
+  const mult = getMultiplier(atkEl, defEl);
+
+  // Buffs
+  let critActive = false;
+  if (atkStatus.critBuff) {
+    // Overcharge: guaranteed crit next attack
+    critActive = true;
+    atkStatus.critBuff = false;
+  } else if (Math.random() < 0.1) {
+    // Base 10% crit chance on every attack
+    critActive = true;
+  }
+  if (critActive) {
+    dmg = Math.floor(dmg * 2);
+    addLog('⚡ Critical Hit! x2');
+  }
+  if (atkStatus.doubleatk) { dmg = Math.floor(dmg*2); atkStatus.doubleatk=false; }
+  if (atkStatus.burnBuff && card.element==='Fire') { card = {...card, effect: card.effect||'burn50'}; atkStatus.burnBuff=false; }
+  if (atkStatus.lightningBuff && card.element==='Lightning') { dmg=Math.floor(dmg*1.5); atkStatus.lightningBuff=false; }
+
+  if (atkStatus.smokeAcc > 0) {
+    if (Math.random() < atkStatus.smokeAcc) {
+      addLog(attacker === 'player' ? 'Your attack missed (smoke)!' : 'Opponent missed!');
+      return;
+    }
+  }
+
+  dmg = Math.floor(dmg * mult);
+  if (mult===1.75) addLog('Dark type! x1.75');
+  else if (mult===1.5) addLog('Super effective! x1.5');
+  if (mult===0.5) addLog('Not very effective... x0.5');
+
+  // Damage types
+  if (card.damageType==='heal') {
+    const healAmt = card.effect==='heal25'?25:card.effect==='heal_shield'?30:0;
+    if (attacker==='player') { playerHP=Math.min(playerMaxHP,playerHP+healAmt); addLog('You healed '+healAmt+' HP!'); }
+    else { opponentHP=Math.min(opponentMaxHP,opponentHP+healAmt); addLog('Opponent'+' healed '+healAmt+' HP!'); }
+    if (card.effect==='heal_shield') { atkStatus.shield=1; addLog((attacker==='player'?'You':'Opponent')+' gained a shield!'); }
+    return;
+  }
+  if (card.damageType==='buff') {
+    applyBuff(card, attacker);
+    return;
+  }
+
+  // Apply defense reduction
+  let finalDmg = dmg;
+  if (defStatus.barrier) { finalDmg=0; defStatus.barrier=false; addLog((defender==='player'?'Your':'Opponent')+' barrier blocked the attack!'); }
+  else if (defStatus.shield>0) { finalDmg=Math.floor(finalDmg*0.5); defStatus.shield=0; addLog('Shield reduced damage!'); }
+  else if (defStatus.defense>0) { finalDmg=Math.floor(finalDmg*(1-0.25)); }
+
+  if (card.effect === 'fast') finalDmg = Math.floor(finalDmg * 1.25);
+
+  if (card.damageType==='multi3') {
+    let total=0;
+    for(let i=0;i<3;i++) total+=Math.floor(finalDmg*(0.8+Math.random()*0.4));
+    finalDmg=total;
+    addLog((attacker==='player'?'You':'Opponent')+' hit 3 times for '+finalDmg+' total!');
+  } else {
+    addLog((attacker==='player'?'You':'Opponent')+' used '+card.name+' for '+finalDmg+' damage!'+(mult===1.75?' (Dark! x1.75)':mult===1.5?' (Super effective! x1.5)':mult===0.5?' (Not effective)':''));
+  }
+
+  if (defender==='player') playerHP=Math.max(0,playerHP-finalDmg);
+  else opponentHP=Math.max(0,opponentHP-finalDmg);
+
+  // Self damage effects
+  if (card.effect==='selfdmg10') { if(attacker==='player'){playerHP=Math.max(0,playerHP-10);addLog('Recoil: You took 10 damage!');}else{opponentHP=Math.max(0,opponentHP-10);} }
+  if (card.effect==='selfdmg15') { if(attacker==='player'){playerHP=Math.max(0,playerHP-15);addLog('Recoil: You took 15 damage!');}else{opponentHP=Math.max(0,opponentHP-15);} }
+  if (card.effect==='both_dmg') { const bd=Math.floor(finalDmg*0.3); if(attacker==='player'){playerHP=Math.max(0,playerHP-bd);addLog('Void explosion recoil: '+bd+' damage!');}
+  else{opponentHP=Math.max(0,opponentHP-bd);} }
+
+  // Status effects
+  applyStatusEffect(card.effect, defender, defStatus);
+}
+
+function applyBuff(card, target) {
+  const st = target==='player'?playerStatus:opponentStatus;
+  const name = target==='player'?'You':'Opponent';
+  if (card.effect==='buff_crit') { st.critBuff=true; addLog(name+' buffed crit!'); }
+  if (card.effect==='defense') { st.defense=3; addLog(name+' raised defense!'); }
+  if (card.effect==='shield75') { st.shield=1; addLog(name+' raised a shield!'); }
+  if (card.effect==='buff_speed') { addLog(name+' used Tailwind! (speed buff)'); }
+}
+
+function applyStatusEffect(effect, target, defStatus) {
+  const name = target==='player'?'You':'Opponent';
+  if (effect==='burn50'&&Math.random()<0.5) { defStatus.burn=3; addLog(name+' is burned!'); }
+  if (effect==='burn_chance'&&Math.random()<0.9) { defStatus.burn=3; addLog(name+' is burned!'); }
+  if (effect==='poison') { defStatus.poison=3; poisonStacks[target]=1; addLog(name+' is poisoned!'); }
+  if (effect==='stun50'&&Math.random()<0.5) { defStatus.stun=1; addLog(name+' is stunned!'); }
+  if (effect==='stun_chance'&&Math.random()<0.3) { defStatus.stun=1; addLog(name+' is stunned!'); }
+  if (effect==='slow') { defStatus.slow=3; addLog(name+' is slowed!'); }
+}
+
+function applyStartOfTurnEffects(who) {
+  const st = who==='player'?playerStatus:opponentStatus;
+  const name = who==='player'?'You':'Opponent';
+  if (st.burn>0) {
+    const dmg=5; st.burn--;
+    if(who==='player') playerHP=Math.max(0,playerHP-dmg); else opponentHP=Math.max(0,opponentHP-dmg);
+    addLog(name+' took '+dmg+' burn damage!');
+  }
+  if (st.poison>0) {
+    const stacks = poisonStacks[who]||1;
+    const dmg = stacks===1?4:stacks===2?6:8;
+    poisonStacks[who]=Math.min(3,(poisonStacks[who]||1)+1);
+    st.poison--;
+    if(who==='player') playerHP=Math.max(0,playerHP-dmg); else opponentHP=Math.max(0,opponentHP-dmg);
+    addLog(name+' took '+dmg+' poison damage!');
+  }
+  if (st.regen>0) {
+    const healAmt = st.regenHeal || 25;
+    st.regen--;
+    if(who==='player') playerHP=Math.min(playerMaxHP,playerHP+healAmt); else opponentHP=Math.min(opponentMaxHP,opponentHP+healAmt);
+    addLog(name+' regenerated '+healAmt+' HP!');
+  }
+  if (st.smokeTurns > 0) {
+    st.smokeTurns--;
+    if (st.smokeTurns <= 0) st.smokeAcc = 0;
+  }
+  if (st.defense>0) st.defense--;
+  updateHPBars();
+  renderStatusBadges();
+}
+
+// AI
+function doOpponentTurn() {
+  applyStartOfTurnEffects('opponent');
+  if (opponentHP <= 0) { clearInterval(roundTimerInterval); winRound(); return; }
+  if (playerHP <= 0) { clearInterval(roundTimerInterval); checkDeath('player'); return; }
+
+  // Check stun AFTER start-of-turn effects
+  if (trySlowSkip('opponent')) {
+    currentTurn = 'player';
+    setTimeout(() => startPlayerTurn(), 1200);
+    return;
+  }
+
+  if (opponentStatus.stun > 0) {
+    opponentStatus.stun--;
+    addLog('Opponent is stunned! Skipping turn.');
+    renderStatusBadges();
+    currentTurn = 'player';
+    setTimeout(() => startPlayerTurn(), 1200);
+    return;
+  }
+
+  const lvl = Math.ceil(round / 5);
+  const isBoss = round % 5 === 0;
+  const smart = lvl >= 2 || isBoss;
+
+  // Pick card
+  let card = null;
+  const affordable = opponentHand.filter(c => c.energy <= 150);
+  if (affordable.length > 0) {
+    if (smart) {
+      // Pick highest effective damage card
+      card = affordable.reduce((best, c) => {
+        const mult = getMultiplier(opponentElement, playerElement);
+        const eff = c.damage * mult;
+        const bestEff = best.damage * getMultiplier(opponentElement, playerElement);
+        return eff > bestEff ? c : best;
+      });
+    } else {
+      card = affordable[Math.floor(Math.random() * affordable.length)];
+    }
+    const idx = opponentHand.indexOf(card);
+    opponentHand.splice(idx, 1);
+    renderOpponentHand();
+    // Track opponent's last card
+    opponentLastCard = card;
+    updateLastCardDisplay('opponent', card);
+    // Update opponent's active element to the card just played
+    opponentElement = card.element;
+    updateElementBadges();
+    // Opponent attack animation
+    if (card.damageType !== 'heal' && card.damageType !== 'buff') {
+      // Flip projectile direction for opponent (top to bottom)
+      const flash = document.getElementById('attackFlash');
+      flash.className = 'attack-flash flash-' + card.element;
+      flash.classList.add('active');
+      setTimeout(() => flash.classList.remove('active'), 500);
+      const proj = document.createElement('div');
+      proj.className = 'projectile';
+      proj.textContent = ELEMENT_PROJECTILES[card.element] || '💥';
+      document.body.appendChild(proj);
+      const fromEl = document.getElementById('opponentHand');
+      const toEl   = document.getElementById('playerHand');
+      const fromRect = fromEl.getBoundingClientRect();
+      const toRect   = toEl.getBoundingClientRect();
+      proj.style.left = (fromRect.left + fromRect.width/2) + 'px';
+      proj.style.top  = (fromRect.top) + 'px';
+      proj.style.transition = 'left 0.4s ease, top 0.4s ease, opacity 0.4s ease, transform 0.4s ease';
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        proj.style.left = (toRect.left + toRect.width/2) + 'px';
+        proj.style.top  = (toRect.top + toRect.height/2) + 'px';
+        proj.style.opacity = '0';
+        proj.style.transform = 'scale(2)';
+      }));
+      setTimeout(() => {
+        proj.remove();
+        if (['Lightning','Earth','Dark','Fire'].includes(card.element)) {
+          const bs = document.getElementById('screenBattle');
+          if (bs) { bs.classList.add('screen-shake'); setTimeout(() => bs.classList.remove('screen-shake'), 350); }
+        }
+        const hpBar = document.getElementById('playerHPBar');
+        if (hpBar) { hpBar.classList.add('hp-hit'); setTimeout(() => hpBar.classList.remove('hp-hit'), 300); }
+        applyCardEffect(card, 'opponent', 'player');
+        updateHPBars();
+        renderStatusBadges();
+        finishOpponentTurn();
+      }, 450);
+    } else {
+      applyCardEffect(card, 'opponent', 'player');
+      updateHPBars();
+      renderStatusBadges();
+      finishOpponentTurn();
+    }
+  } else {
+    addLog('Opponent has no affordable cards and shuffles.');
+    opponentHand = shuffle([...ALL_CARDS].map(c=>({...c}))).slice(0,7);
+    finishOpponentTurn();
+  }
+}
+
+function finishOpponentTurn() {
+  if (playerHP <= 0) { clearInterval(roundTimerInterval); checkDeath('player'); return; }
+  if (opponentHP <= 0) { clearInterval(roundTimerInterval); winRound(); return; }
+  currentTurn = 'player';
+  setTimeout(()=>startPlayerTurn(), 1000);
+}
+
+// Items
+function openBag() {
+  if (!document.getElementById('btnUseItem').disabled) {
+    renderBagGrid();
+    document.getElementById('bagModal').classList.remove('hidden');
+  }
+}
+function closeBag() { document.getElementById('bagModal').classList.add('hidden'); }
+function closeBagOutside(e) { if(e.target===document.getElementById('bagModal')) closeBag(); }
+
+function renderBagGrid() {
+  const grid = document.getElementById('bagGrid');
+  grid.innerHTML = '';
+  if (playerBag.length === 0) { grid.innerHTML = '<p style="color:#888;text-align:center">Bag is empty.</p>'; return; }
+  playerBag.forEach((itemId, idx) => {
+    const item = ALL_ITEMS.find(i=>i.id===itemId);
+    if (!item) return;
+    const el = document.createElement('div');
+    el.className = 'bag-item rarity-'+item.rarity;
+    el.innerHTML = '<div class="item-icon">'+item.icon+'</div><div class="item-name">'+item.name+'</div><div class="item-desc">'+item.desc+'</div>';
+    el.onclick = () => useItem(idx);
+    grid.appendChild(el);
+  });
+}
+
+function useItem(idx) {
+  const item = ALL_ITEMS.find(i=>i.id===playerBag[idx]);
+  if (!item) return;
+  stopTurnTimer();
+  closeBag();
+  playerBag.splice(idx,1);
+  saveItems();
+  updateBagCount();
+  applyItem(item);
+  updateHPBars();
+  renderStatusBadges();
+  if (opponentHP<=0){clearInterval(roundTimerInterval);winRound();return;}
+  if (playerHP<=0){clearInterval(roundTimerInterval);checkDeath('player');return;}
+  // Item use does NOT end turn — resume timer from where it left off
+  resumeTurnTimer();
+}
+
+function applyItem(item) {
+  switch(item.type) {
+    // ✅ WORKS: heal items restore HP directly
+    case 'heal':
+      playerHP = Math.min(playerMaxHP, playerHP + item.value);
+      addLog('Used ' + item.name + ': healed ' + item.value + ' HP!');
+      break;
+    // ✅ WORKS: regen sets regen turns, ticks down each turn start
+    case 'regen':
+      playerStatus.regen = (item.turns || 3);
+      playerStatus.regenHeal = item.value || 25;
+      addLog('Used ' + item.name + ': regen for ' + (item.turns||3) + ' turns!');
+      break;
+    // ✅ WORKS: shield halves next hit
+    case 'shield':
+      playerStatus.shield = 1;
+      addLog('Used ' + item.name + ': shield active!');
+      break;
+    // ✅ WORKS: barrier blocks next attack entirely
+    case 'barrier':
+      playerStatus.barrier = true;
+      addLog('Used ' + item.name + ': next attack blocked!');
+      break;
+    // ✅ WORKS: defense reduces damage for N turns
+    case 'defense':
+      playerStatus.defense = (item.turns || 3);
+      addLog('Used ' + item.name + ': defense up!');
+      break;
+    // ✅ WORKS: sets burnBuff flag, checked in applyCardEffect
+    case 'buff_burn':
+      playerStatus.burnBuff = true;
+      addLog('Used ' + item.name + ': next Fire attack burns!');
+      break;
+    // ✅ WORKS: sets lightningBuff flag, checked in applyCardEffect
+    case 'buff_lightning':
+      playerStatus.lightningBuff = true;
+      addLog('Used ' + item.name + ': next Lightning +50%!');
+      break;
+    // ✅ WORKS: 50% chance to stun opponent
+    case 'freeze':
+      if (Math.random() < item.value) { opponentStatus.stun = 1; addLog('Freeze Bomb: opponent frozen!'); }
+      else addLog('Freeze Bomb missed!');
+      break;
+    // ✅ WORKS: doubles next attack, costs 10 HP recoil
+    case 'double_atk':
+      playerStatus.doubleatk = true;
+      playerHP = Math.max(0, playerHP - 10);
+      addLog('Dark Crystal: next attack doubled! Took 10 recoil.');
+      break;
+    // ✅ WORKS: clears all debuff statuses
+    case 'purify':
+      playerStatus.burn = 0; playerStatus.poison = 0;
+      playerStatus.stun = 0; playerStatus.slow = 0;
+      addLog('Purified all debuffs!');
+      break;
+    // ✅ FIXED: was value:2 (useless). Now restores 30 energy
+    case 'energy':
+      playerEnergy = Math.min(playerMaxEnergy, playerEnergy + 30);
+      updateEnergyBar();
+      addLog('Used ' + item.name + ': restored 30 energy!');
+      break;
+    // ✅ WORKS: 50% chance for extra turn
+    case 'extra_turn':
+      if (Math.random() < 0.5) {
+        addLog('Speed Feather: extra turn!');
+        currentTurn = 'player';
+        setTimeout(() => startPlayerTurn(), 500);
+        return;
+      } else {
+        addLog('Speed Feather: no extra turn this time.');
+      }
+      break;
+    // ✅ FIXED: was calling shuffleDeck() which ended the turn. Now draws inline without ending turn
+    case 'shuffle': {
+      if (playerDeck.length === 0) refillDeck();
+      const oldHand = playerHand.length;
+      const drawCount = Math.min(7 - playerHand.length, playerDeck.length);
+      if (drawCount > 0) {
+        const drawn = playerDeck.splice(0, drawCount);
+        playerHand = [...playerHand, ...drawn];
+        renderPlayerHand();
+        updateDeckPileCount();
+        addLog('Shuffle Scroll: drew ' + drawCount + ' card(s)!');
+      } else {
+        addLog('Shuffle Scroll: hand already full!');
+      }
+      break;
+    }
+    // ✅ FIXED: now refills deck first if empty before drawing
+    case 'draw': {
+      if (playerDeck.length === 0) refillDeck();
+      const drawn = playerDeck.splice(0, Math.min(2, playerDeck.length));
+      playerHand = [...playerHand, ...drawn];
+      renderPlayerHand();
+      updateDeckPileCount();
+      addLog('Drew ' + drawn.length + ' extra cards!');
+      break;
+    }
+    // ✅ WORKS: returns last used card to hand
+    case 'recall':
+      if (playerUsedCards.length > 0) {
+        const c = playerUsedCards.pop();
+        playerHand.push(c);
+        renderPlayerHand();
+        addLog('Recalled ' + c.name + ' to hand!');
+      } else {
+        addLog('No used cards to recall.');
+      }
+      break;
+    // ✅ WORKS: poisons opponent for 3 turns
+    case 'debuff_poison':
+      opponentStatus.poison = 3; poisonStacks.opponent = 1;
+      addLog('Poison Bottle: opponent poisoned!');
+      break;
+    // ✅ WORKS: 40% chance to stun opponent
+    case 'debuff_stun':
+      if (Math.random() < item.value) { opponentStatus.stun = 1; addLog('Freeze Trap: opponent stunned!'); }
+      else addLog('Freeze Trap missed!');
+      break;
+    // ✅ WORKS: sets smokeAcc on opponent, checked in applyCardEffect
+    case 'debuff_acc':
+      opponentStatus.smokeAcc = item.value;
+      opponentStatus.smokeTurns = 3;
+      addLog('Smoke Bomb: opponent accuracy -30%!');
+      break;
+    // ✅ WORKS: sets phoenix flag, checked in checkDeath
+    case 'revive':
+      if (!phoenixUsed) {
+        phoenixUsed = true;
+        playerStatus.phoenix = true;
+        addLog('Phoenix Feather saved! Will revive on death.');
+      } else {
+        addLog('Phoenix Feather already used!');
+      }
+      break;
+    // ✅ NEW: Master Ball — copy opponent's last used card into your hand
+    case 'master_ball':
+      if (opponentLastCard) {
+        playerHand.push({...opponentLastCard});
+        renderPlayerHand();
+        addLog('Mirror Core: copied ' + opponentLastCard.name + ' into your hand!');
+      } else {
+        addLog('Mirror Core: the opponent has not played a card yet!');
+      }
+      break;
+    // ✅ WORKS: random effect
+    case 'chaos': {
+      const roll = Math.floor(Math.random() * 4);
+      if (roll === 0) { playerHP = Math.min(playerMaxHP, playerHP + 60); addLog('Chaos Dice: HUGE HEAL! +60 HP!'); }
+      else if (roll === 1) { opponentHP = Math.max(0, opponentHP - 70); addLog('Chaos Dice: HUGE DAMAGE! 70 dmg to opponent!'); }
+      else if (roll === 2) { playerStatus.critBuff = true; playerStatus.defense = 3; addLog('Chaos Dice: BUFF! Crit+Defense!'); break; }
+      else { opponentStatus.burn = 3; opponentStatus.poison = 3; poisonStacks.opponent = 2; addLog('Chaos Dice: DEBUFF on opponent!'); }
+      break;
+    }
+  }
+}
+
+// Win/Lose
+function checkDeath(who) {
+  if (who==='player') {
+    const phoenixId = playerBag.indexOf('phoenix_feather');
+    if (phoenixId !== -1 && !phoenixUsed) {
+      playerBag.splice(phoenixId, 1);
+      saveItems();
+      updateBagCount();
+      phoenixUsed = true;
+      playerHP = Math.floor(playerMaxHP * 0.3);
+      addLog('🔥 Cinder Plume auto-activated! Revived with ' + playerHP + ' HP!');
+      updateHPBars();
+      renderStatusBadges();
+      startPlayerTurn();
+      return;
+    }
+    if (playerStatus.phoenix) {
+      playerStatus.phoenix = false;
+      playerHP = Math.floor(playerMaxHP * 0.3);
+      addLog('🔥 Cinder Plume activated! Revived with ' + playerHP + ' HP!');
+      updateHPBars();
+      renderStatusBadges();
+      startPlayerTurn();
+      return;
+    }
+  }
+  endGame(who!=='player');
+}
+
+function winRound() {
+  clearInterval(roundTimerInterval);
+  clearInterval(turnTimerInterval);
+  addLog('You defeated the opponent! Round '+round+' complete!');
+  // Heal player
+  playerHP = playerMaxHP;
+  // Give item reward
+  offerReward();
+}
+
+function endGame(playerWon) {
+  clearInterval(roundTimerInterval);
+  clearInterval(turnTimerInterval);
+  if (playerWon) {
+    document.getElementById('gameOverTitle').textContent = 'VICTORY!';
+    document.getElementById('gameOverSub').textContent = 'You won the battle!';
+  } else {
+    document.getElementById('gameOverTitle').textContent = 'GAME OVER';
+    document.getElementById('gameOverSub').textContent = 'You were defeated in Round '+round+'.';
+  }
+  showScreen('screenGameOver');
+}
+
+function tryAgain() {
+  round = 1;
+  phoenixUsed = false;
+    window.location.href = 'battle.html?first=player&round=1';
+}
+
+function goMainMenu() { navigateTo(() => { window.location.href = 'main menu.html'; }); }
+
+// Rewards
+function offerReward() {
+  // Generate 3 random items (legendary 10% chance each)
+  const pool = ALL_ITEMS.filter(i=>i.rarity!=='legendary');
+  const legendary = ALL_ITEMS.filter(i=>i.rarity==='legendary');
+  pendingRewardItems = [];
+  for(let i=0;i<3;i++){
+    if(Math.random()<0.1 && legendary.length>0){
+      pendingRewardItems.push(legendary[Math.floor(Math.random()*legendary.length)]);
+    } else {
+      pendingRewardItems.push(pool[Math.floor(Math.random()*pool.length)]);
+    }
+  }
+  renderRewardItems();
+  document.getElementById('discardSection').classList.add('hidden');
+  showScreen('screenReward');
+}
+
+function renderRewardItems() {
+  const container = document.getElementById('rewardItems');
+  container.innerHTML = '';
+  pendingRewardItems.forEach((item,idx)=>{
+    const el=document.createElement('div');
+    el.className='reward-item rarity-'+item.rarity;
+    el.innerHTML='<div class="item-icon">'+item.icon+'</div><div class="item-name">'+item.name+'</div><div class="item-rarity">'+item.rarity.toUpperCase()+'</div><div class="item-desc">'+item.desc+'</div><button class="btn-primary-game" onclick="pickReward('+idx+')">Take</button>';
+    container.appendChild(el);
+  });
+}
+
+function pickReward(idx) {
+  const item = pendingRewardItems[idx];
+  if (playerBag.length >= 5) {
+    // Need to discard first
+    document.getElementById('rewardSubtitle').textContent = 'Bag full! Discard an item first, then take: '+item.name;
+    pendingDiscardCallback = () => { playerBag.push(item.id); saveItems(); proceedToNextRound(); };
+    renderDiscardGrid();
+    document.getElementById('discardSection').classList.remove('hidden');
+    document.getElementById('rewardItems').classList.add('hidden');
+  } else {
+    playerBag.push(item.id);
+    saveItems();
+    proceedToNextRound();
+  }
+}
+
+function renderDiscardGrid() {
+  const grid=document.getElementById('discardGrid');
+  grid.innerHTML='';
+  playerBag.forEach((itemId,idx)=>{
+    const item=ALL_ITEMS.find(i=>i.id===itemId);
+    if(!item)return;
+    const el=document.createElement('div');
+    el.className='bag-item rarity-'+item.rarity;
+    el.innerHTML='<div class="item-icon">'+item.icon+'</div><div class="item-name">'+item.name+'</div><div class="item-desc">'+item.desc+'</div><button class="btn-danger-game" onclick="discardItem('+idx+')">Discard</button>';
+    grid.appendChild(el);
+  });
+}
+
+function discardItem(idx) {
+  playerBag.splice(idx,1);
+  saveItems();
+  if(pendingDiscardCallback){ pendingDiscardCallback(); pendingDiscardCallback=null; }
+}
+
+function proceedToNextRound() {
+  round++;
+  saveItems();
+  const nextFirst = sessionStorage.getItem('nextFirstTurn') || 'player';
+  window.location.href='battle.html?first='+nextFirst+'&round='+round;
+}
+
+function saveItems() { localStorage.setItem('wildcardItems', JSON.stringify(playerBag)); }
+
+// UI
+function updateHPBars() {
+  const pPct=Math.max(0,(playerHP/playerMaxHP)*100);
+  const oPct=Math.max(0,(opponentHP/opponentMaxHP)*100);
+  document.getElementById('playerHPBar').style.width=pPct+'%';
+  document.getElementById('opponentHPBar').style.width=oPct+'%';
+  document.getElementById('playerHPText').textContent=playerHP+' / '+playerMaxHP;
+  document.getElementById('opponentHPText').textContent=opponentHP+' / '+opponentMaxHP;
+  document.getElementById('playerHPBar').style.background=pPct>50?'#4a9a4a':pPct>25?'#e0d000':'#e05a1a';
+  document.getElementById('opponentHPBar').style.background=oPct>50?'#9a4a4a':oPct>25?'#e0d000':'#e05a1a';
+}
+
+function updateEnergyBar() {
+  const pct=(playerEnergy/playerMaxEnergy)*100;
+  document.getElementById('playerEnergyBar').style.width=pct+'%';
+  document.getElementById('playerEnergyText').textContent=playerEnergy+' / '+playerMaxEnergy;
+}
+
+function renderPlayerHand() {
+  const hand = document.getElementById('playerHand');
+  hand.innerHTML = '';
+  playerHand.forEach((card, idx) => {
+    const col = ELEMENT_COLORS[card.element] || {bg:'#2b2f3a', border:'#555', badge:'#aaa'};
+    const canAfford = playerEnergy >= card.energy;
+    const el = document.createElement('div');
+    el.className = 'hand-card' + (canAfford ? '' : ' cant-afford');
+    el.style.setProperty('--card-bg', col.bg);
+    el.style.setProperty('--card-border', col.border);
+    el.style.setProperty('--card-badge', col.badge);
+    el.style.animationDelay = (idx * 0.05) + 's';
+    el.innerHTML = `
+      <div class="hc-element">${ELEMENT_ICONS[card.element]} ${card.element}</div>
+      <div class="hc-name">${card.name}</div>
+      <div class="hc-stats">
+        <span class="hc-energy">⚡${card.energy}</span>
+        <span class="hc-dmg">${card.damage || card.damageType}</span>
+      </div>
+      <div class="hc-effect">${card.effect}</div>`;
+    el.onclick = () => playCard(idx);
+    hand.appendChild(el);
+  });
+}
+
+function renderOpponentHand() {
+  const hand = document.getElementById('opponentHand');
+  hand.innerHTML = '';
+  opponentHand.forEach((_, i) => {
+    const el = document.createElement('div');
+    el.className = 'opp-card-back';
+    el.style.animationDelay = (i * 0.06) + 's';
+    el.setAttribute('aria-label', 'Hidden card');
+    const img = document.createElement('img');
+    img.src = 'Images/Backcard.png';
+    img.alt = '';
+    img.setAttribute('aria-hidden', 'true');
+    el.appendChild(img);
+    hand.appendChild(el);
+  });
+}
+
+function renderStatusBadges() {
+  renderBadges('playerStatus', playerStatus);
+  renderBadges('opponentStatus', opponentStatus);
+}
+
+function renderBadges(elId, status) {
+  const el=document.getElementById(elId);
+  el.innerHTML='';
+  const badges=[];
+  if(status.burn>0) badges.push({icon:'🔥',label:'Burn x'+status.burn});
+  if(status.poison>0) badges.push({icon:'☠',label:'Poison x'+status.poison});
+  if(status.stun>0) badges.push({icon:'⚡',label:'Stun'});
+  if(status.shield>0) badges.push({icon:'🛡',label:'Shield'});
+  if(status.regen>0) badges.push({icon:'🌿',label:'Regen x'+status.regen});
+  if(status.defense>0) badges.push({icon:'🪨',label:'Def x'+status.defense});
+  if(status.barrier) badges.push({icon:'✨',label:'Barrier'});
+  if(status.critBuff) badges.push({icon:'⚔',label:'Crit'});
+  if(status.slow>0) badges.push({icon:'🌀',label:'Slow'});
+  badges.forEach(b=>{
+    const span=document.createElement('span');
+    span.className='status-badge';
+    span.textContent=b.icon+' '+b.label;
+    el.appendChild(span);
+  });
+}
+
+function updateBagCount() {
+  document.getElementById('bagCount').textContent='('+playerBag.length+'/5)';
+}
+
+function updateDeckPileCount() {
+  const el = document.getElementById('deckPileCount');
+  const pile = document.getElementById('deckPile');
+  if (el) el.textContent = '∞';
+  if (pile) pile.classList.remove('empty');
+}
+
+function setupDeckPileClick() {
+  const pile = document.getElementById('deckPile');
+  if (!pile) return;
+  pile.addEventListener('click', () => addOneCardToHand(false));
+}
+
+function navigateTo(callback) {
+  if (typeof callback === 'function') {
+    setTimeout(callback, 100);
+  } else if (typeof callback === 'string') {
+    window.location.href = callback;
+  }
+}
+
+function updateLastCardDisplay(who, card) {
+  const displayId = who === 'player' ? 'lastCardPlayerDisplay' : 'lastCardOpponentDisplay';
+  const el = document.getElementById(displayId);
+  if (!el) return;
+  const col = ELEMENT_COLORS[card.element] || {bg:'#2b2f3a', border:'#555', badge:'#aaa'};
+  el.innerHTML = `
+    <div class="last-card-mini" style="--card-bg:${col.bg};--card-border:${col.border};--card-badge:${col.badge}">
+      <div class="lcm-element">${ELEMENT_ICONS[card.element] || ''} ${card.element}</div>
+      <div class="lcm-name">${card.name}</div>
+      <div class="lcm-dmg">${card.damage || card.damageType}</div>
+    </div>`;
+}
+
+function updateElementBadges() {
+  const pb = document.getElementById('playerElementBadge');
+  const ob = document.getElementById('opponentElementBadge');
+  const neutralStyle = {bg:'#2b2f3a', border:'#555'};
+
+  if (pb) {
+    const isNeutral = playerElement === 'Neutral';
+    pb.textContent = isNeutral ? '—' : (ELEMENT_ICONS[playerElement] || '?');
+    pb.title = isNeutral ? 'No type yet' : playerElement;
+    pb.style.background = isNeutral ? neutralStyle.bg : ((ELEMENT_COLORS[playerElement] || {}).bg || '#2b2f3a');
+    pb.style.borderColor = isNeutral ? neutralStyle.border : ((ELEMENT_COLORS[playerElement] || {}).border || '#555');
+    pb.classList.remove('changed');
+    void pb.offsetWidth;
+    pb.classList.add('changed');
+  }
+  if (ob) {
+    const isNeutral = opponentElement === 'Neutral';
+    ob.textContent = isNeutral ? '—' : (ELEMENT_ICONS[opponentElement] || '?');
+    ob.title = isNeutral ? 'No type yet' : opponentElement;
+    ob.style.background = isNeutral ? neutralStyle.bg : ((ELEMENT_COLORS[opponentElement] || {}).bg || '#2b2f3a');
+    ob.style.borderColor = isNeutral ? neutralStyle.border : ((ELEMENT_COLORS[opponentElement] || {}).border || '#555');
+    ob.classList.remove('changed');
+    void ob.offsetWidth;
+    ob.classList.add('changed');
+  }
+}
+
+function addLog(msg) {
+  const log=document.getElementById('battleLog');
+  const entry=document.createElement('div');
+  entry.className='log-entry';
+  entry.textContent=msg;
+  log.appendChild(entry);
+  log.scrollTop=log.scrollHeight;
+  // Keep last 20 entries
+  while(log.children.length>20) log.removeChild(log.firstChild);
+}
+
+
+// Animations
+const ELEMENT_PROJECTILES = {
+  Fire:'🔥', Water:'💧', Grass:'🌿', Lightning:'⚡',
+  Earth:'🪨', Wind:'🌪', Light:'✨', Dark:'🌑'
+};
+
+function playAttackAnimation(element, targetWho, callback) {
+  const flash = document.getElementById('attackFlash');
+  flash.className = 'attack-flash flash-' + element;
+  flash.classList.add('active');
+  setTimeout(() => flash.classList.remove('active'), 500);
+
+  const proj = document.createElement('div');
+  proj.className = 'projectile';
+  proj.textContent = ELEMENT_PROJECTILES[element] || '💥';
+  document.body.appendChild(proj);
+
+  const fromEl = document.getElementById('playerHand');
+  const toEl   = document.getElementById('opponentHand');
+  const fromRect = fromEl.getBoundingClientRect();
+  const toRect   = toEl.getBoundingClientRect();
+
+  proj.style.left = (fromRect.left + fromRect.width/2) + 'px';
+  proj.style.top  = (fromRect.top) + 'px';
+  proj.style.transition = 'left 0.4s ease, top 0.4s ease, opacity 0.4s ease, transform 0.4s ease';
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      proj.style.left    = (toRect.left + toRect.width/2) + 'px';
+      proj.style.top     = (toRect.top + toRect.height/2) + 'px';
+      proj.style.opacity = '0';
+      proj.style.transform = 'scale(2)';
+    });
+  });
+
+  setTimeout(() => {
+    proj.remove();
+    if (['Lightning','Earth','Dark','Fire'].includes(element)) {
+      const bs = document.getElementById('screenBattle');
+      if (bs) { bs.classList.add('screen-shake'); setTimeout(() => bs.classList.remove('screen-shake'), 350); }
+    }
+    const hpBar = document.getElementById(targetWho === 'player' ? 'playerHPBar' : 'opponentHPBar');
+    if (hpBar) { hpBar.classList.add('hp-hit'); setTimeout(() => hpBar.classList.remove('hp-hit'), 300); }
+    if (callback) callback();
+  }, 450);
+}
+
+function animateCardPlay(cardEl, callback) {
+  if (!cardEl) { if(callback) callback(); return; }
+  cardEl.classList.add('playing');
+  setTimeout(() => { if(callback) callback(); }, 480);
+}
+
+function animateFlyFromDeck(drawCount, callback) {
+  const pileEl = document.getElementById('deckPile');
+  const handEl = document.getElementById('playerHand');
+  if (!pileEl || !handEl || drawCount <= 0) {
+    if (callback) callback();
+    return;
+  }
+
+  const cardsEl = pileEl.querySelector('.deck-pile-cards');
+  const pileRect = (cardsEl || pileEl).getBoundingClientRect();
+  const handRect = handEl.getBoundingClientRect();
+  const cardW = pileRect.width || 60;
+  const cardH = pileRect.height || 88;
+  let completed = 0;
+
+  for (let i = 0; i < drawCount; i++) {
+    setTimeout(() => {
+      const flyCard = document.createElement('img');
+      flyCard.className = 'fly-card';
+      flyCard.src = 'Images/Backcard.png';
+      flyCard.alt = '';
+      flyCard.style.left = (pileRect.left + pileRect.width / 2 - cardW / 2) + 'px';
+      flyCard.style.top = (pileRect.top + pileRect.height / 2 - cardH / 2) + 'px';
+      document.body.appendChild(flyCard);
+
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        flyCard.style.transition = 'left 0.35s ease, top 0.35s ease, opacity 0.35s ease, transform 0.35s ease';
+        flyCard.style.left = (handRect.left + handRect.width / 2 - cardW / 2) + 'px';
+        flyCard.style.top = (handRect.top + 10) + 'px';
+        flyCard.style.opacity = '0';
+        flyCard.style.transform = 'scale(0.6) rotate(12deg)';
+      }));
+
+      setTimeout(() => {
+        flyCard.remove();
+        completed++;
+        if (completed === drawCount && callback) callback();
+      }, 380);
+    }, i * 80);
+  }
+}
+
+function animateShuffle(callback) {
+  if (playerDeck.length === 0) refillDeck();
+  const drawCount = Math.min(7 - playerHand.length, playerDeck.length);
+  if (drawCount <= 0) {
+    if (callback) callback();
+    return;
+  }
+  const pile = document.getElementById('deckPile');
+  if (pile) pile.classList.add('shuffling');
+  animateFlyFromDeck(drawCount, () => {
+    if (pile) pile.classList.remove('shuffling');
+    if (callback) callback();
+  });
+}
+
+function restoreFullscreen() {
+  document.documentElement.requestFullscreen().then(() => {
+    const p = document.getElementById('fsPrompt');
+    if (p) p.classList.add('hidden');
+    localStorage.setItem('fullscreen', '1');
+  }).catch(()=>{});
+}
+
+// Pause
+function openPause() {
+  stopTurnTimer();
+  clearInterval(roundTimerInterval);
+  document.getElementById('pauseModal').classList.remove('hidden');
+}
+function closePause() {
+  document.getElementById('pauseModal').classList.add('hidden');
+  startRoundTimer();
+  if (currentTurn === 'player') resumeTurnTimer();
+}
+function leaveGame() {
+  clearInterval(roundTimerInterval);
+  clearInterval(turnTimerInterval);
+  navigateTo(() => { window.location.href = 'main menu.html'; });
+}
+</script>
+</body>
+</html>

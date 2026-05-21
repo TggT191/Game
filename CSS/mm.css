@@ -1,0 +1,703 @@
+/* ============================================================
+   WILDCARD — Main Menu  (Balatro-inspired pixel card theme)
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #1c1a2e;
+  font-family: 'Press Start 2P', monospace;
+  color: #f0e8d8;
+  animation: pageEnter 0.55s ease forwards;
+}
+
+@keyframes pageEnter {
+  from { opacity: 0; transform: scale(1.04); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.hidden { display: none !important; }
+
+/* ============================================================
+   BACKGROUND — pixel poker room
+   ============================================================ */
+.menu-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: #1c1a2e;
+  pointer-events: none;
+  /* Pixel brick-wall pattern on the back wall */
+  background-image:
+    repeating-linear-gradient(0deg,   transparent, transparent 15px, rgba(255,255,255,0.015) 15px, rgba(255,255,255,0.015) 16px),
+    repeating-linear-gradient(90deg,  transparent, transparent 30px, rgba(255,255,255,0.015) 30px, rgba(255,255,255,0.015) 31px);
+}
+
+/* Overhead lamp cone */
+.menu-bg::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 55%;
+  background: radial-gradient(ellipse 80% 100% at 50% 0%, rgba(255,230,180,0.22) 0%, transparent 75%);
+  pointer-events: none;
+}
+
+/* Scanline overlay */
+.menu-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,0,0,0.08) 3px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+}
+
+/* Vignette */
+.menu-vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(ellipse 90% 90% at 50% 50%, transparent 25%, rgba(0,0,0,0.50) 100%);
+  pointer-events: none;
+}
+
+/* ============================================================
+   PIXEL POKER TABLE  (rectangular, hard pixel art style)
+   ============================================================ */
+.poker-table-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Pixel wood rail — layered box-shadows simulate pixel border blocks */
+.poker-table {
+  position: relative;
+  width: min(84vw, 960px);
+  height: min(44vh, 400px);
+  border-radius: 0;
+  background: #1e5c30;          /* flat pixel felt */
+  /* 4-layer pixel border: inner felt line, felt shadow, rail, outer dark */
+  border: 4px solid #0f3018;
+  box-shadow:
+    0 0 0 4px #4a2808,          /* wood rail */
+    0 0 0 8px #2a1604,          /* outer dark edge */
+    0 0 0 9px #5a3410,          /* outermost highlight pixel */
+    4px 8px 0 8px rgba(0,0,0,0.6); /* pixel drop shadow */
+  image-rendering: pixelated;
+  overflow: visible;            /* let side cards poke out */
+}
+
+/* Pixel felt grid — 8×8 tile pattern */
+.poker-table::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(0deg,   transparent, transparent 7px, rgba(0,0,0,0.10) 7px, rgba(0,0,0,0.10) 8px),
+    repeating-linear-gradient(90deg,  transparent, transparent 7px, rgba(0,0,0,0.10) 7px, rgba(0,0,0,0.10) 8px);
+  pointer-events: none;
+}
+
+/* Pixel center logo */
+.poker-table::after {
+  content: '★ WILDCARD ★';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(0.45rem, 1vw, 0.65rem);
+  letter-spacing: clamp(4px, 0.8vw, 8px);
+  color: rgba(255,210,80,0.14);
+  white-space: nowrap;
+  pointer-events: none;
+  font-family: 'Press Start 2P', monospace;
+}
+
+/* Overhead lamp glow on felt */
+.table-lamp {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 55%;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255,230,140,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Battle cards on the felt (rendered by JS) ── */
+.table-battle-card {
+  position: absolute;
+  width: clamp(52px, 5.5vw, 72px);
+  height: clamp(74px, 8vw, 104px);
+  border-radius: 0;
+  border: 2px solid var(--card-border, #555);
+  background: var(--card-bg, #2b2f3a);
+  padding: 4px 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.7);
+  pointer-events: none;
+  image-rendering: pixelated;
+  overflow: hidden;
+}
+
+.table-battle-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.10) 2px, rgba(0,0,0,0.10) 3px
+  );
+  pointer-events: none;
+}
+
+.tbc-element {
+  font-size: clamp(0.28rem, 0.45vw, 0.36rem);
+  color: var(--card-badge, #aaa);
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative; z-index: 1;
+}
+.tbc-name {
+  font-size: clamp(0.3rem, 0.48vw, 0.38rem);
+  font-weight: bold;
+  color: #fff;
+  line-height: 1.2;
+  flex: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  position: relative; z-index: 1;
+}
+.tbc-stats {
+  display: flex;
+  gap: 3px;
+  font-size: clamp(0.26rem, 0.42vw, 0.34rem);
+  position: relative; z-index: 1;
+}
+.tbc-energy { color: #f0d060; }
+.tbc-dmg    { color: #f08080; }
+.tbc-effect {
+  font-size: clamp(0.24rem, 0.38vw, 0.3rem);
+  color: rgba(200,200,200,0.65);
+  line-height: 1.2;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  position: relative; z-index: 1;
+}
+
+/* ── Side card fans (battle cards sticking out) ── */
+.side-cards-left {
+  position: absolute;
+  left: -52px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.side-cards-right {
+  position: absolute;
+  right: -52px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: none;
+}
+
+/* Fan rotations — left side */
+.side-cards-left .table-battle-card:nth-child(1) { transform: rotate(-10deg) translateX(-6px); }
+.side-cards-left .table-battle-card:nth-child(2) { transform: rotate(-3deg)  translateX(-3px); }
+.side-cards-left .table-battle-card:nth-child(3) { transform: rotate(5deg)   translateX(-4px); }
+
+/* Fan rotations — right side */
+.side-cards-right .table-battle-card:nth-child(1) { transform: rotate(10deg) translateX(6px); }
+.side-cards-right .table-battle-card:nth-child(2) { transform: rotate(3deg)  translateX(3px); }
+.side-cards-right .table-battle-card:nth-child(3) { transform: rotate(-5deg) translateX(4px); }
+
+/* ── Pixel chip stacks ── */
+.chip {
+  width: clamp(12px, 1.4vw, 18px);
+  height: clamp(12px, 1.4vw, 18px);
+  border-radius: 0;
+  border: 2px solid rgba(255,255,255,0.45);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.6);
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+
+.chip-stack {
+  position: absolute;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  pointer-events: none;
+}
+
+.chip-stack .chip { margin-top: -5px; }
+.chip-stack .chip:first-child { margin-top: 0; }
+
+/* ============================================================
+   NEON HORIZONTAL LINES
+   ============================================================ */
+.neon-line {
+  position: fixed;
+  left: 0; right: 0;
+  height: 2px;                             /* 2px for pixel feel */
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--nlColor, rgba(220,80,40,0.35)), transparent);
+  opacity: 0;
+  animation: neonPulse var(--nlDur, 8s) var(--nlDelay, 0s) ease-in-out infinite;
+  image-rendering: pixelated;
+}
+
+@keyframes neonPulse {
+  0%, 100% { opacity: 0; }
+  50%       { opacity: 1; }
+}
+
+/* ============================================================
+   MAIN LAYOUT
+   ============================================================ */
+.menu-screen {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 3vh, 40px) clamp(12px, 3vw, 32px);
+  gap: clamp(20px, 4vh, 48px);
+}
+
+/* ============================================================
+   TITLE BLOCK
+   ============================================================ */
+.title-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Suit row */
+.title-suits {
+  display: flex;
+  gap: clamp(10px, 2vw, 20px);
+  font-size: clamp(1rem, 2.5vw, 1.6rem);
+  animation: suitsDrift 3s ease-in-out infinite alternate;
+}
+
+@keyframes suitsDrift {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-5px); }
+}
+
+.suit-spade   { color: #c0a0ff; text-shadow: 0 0 14px rgba(160,100,255,0.8); }
+.suit-heart   { color: #ff6080; text-shadow: 0 0 14px rgba(255,60,80,0.8); }
+.suit-diamond { color: #ff4060; text-shadow: 0 0 14px rgba(255,40,60,0.8); }
+.suit-club    { color: #a0c0ff; text-shadow: 0 0 14px rgba(80,140,255,0.8); }
+
+/* Foil gold title */
+.title {
+  font-size: clamp(1.4rem, 5vw, 3.2rem);
+  margin: 0;
+  letter-spacing: clamp(4px, 1vw, 10px);
+  text-align: center;
+  line-height: 1.2;
+  background: linear-gradient(
+    135deg,
+    #ffe066 0%, #fff8c0 18%, #ffd700 32%,
+    #fff    48%, #ffd700 62%, #fff8c0 76%, #ffe066 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: foilShift 4s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 18px rgba(255,210,0,0.55)) drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+}
+
+@keyframes foilShift {
+  from { background-position: 0% 50%; }
+  to   { background-position: 100% 50%; }
+}
+
+/* ============================================================
+   MENU CARD BUTTONS
+   ============================================================ */
+.menu-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: clamp(10px, 2vw, 22px);
+}
+
+.menu-card {
+  position: relative;
+  width: clamp(110px, 12vw, 155px);
+  aspect-ratio: 2.5 / 3.5;
+  border-radius: clamp(8px, 1vw, 12px);
+  border: 2px solid rgba(255,200,120,0.15);
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+  background: rgba(255,255,255,0.07);
+  
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition:
+    transform 0.3s cubic-bezier(.34,1.56,.64,1),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+  animation: cardDealIn 0.6s cubic-bezier(.34,1.45,.64,1) backwards;
+}
+
+.menu-card:nth-child(1) { animation-delay: 0.05s; }
+.menu-card:nth-child(2) { animation-delay: 0.13s; }
+.menu-card:nth-child(3) { animation-delay: 0.21s; }
+.menu-card:nth-child(4) { animation-delay: 0.29s; }
+.menu-card:nth-child(5) { animation-delay: 0.37s; }
+
+@keyframes cardDealIn {
+  from { opacity: 0; transform: translateY(60px) rotate(-6deg) scale(0.8); }
+  to   { opacity: 1; transform: translateY(0)    rotate(0deg)  scale(1); }
+}
+
+.menu-card:hover {
+  transform: translateY(-18px) scale(1.06);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+  z-index: 10;
+}
+
+/* Foil shimmer on hover */
+.menu-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.06) 50%, transparent 70%);
+  background-size: 200% 200%;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.menu-card:hover::before {
+  opacity: 1;
+  animation: shimmerSlide 0.8s ease forwards;
+}
+
+@keyframes shimmerSlide {
+  from { background-position: 200% 200%; }
+  to   { background-position: -50% -50%; }
+}
+
+/* Scanline texture on each card */
+.menu-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.12) 2px,
+    rgba(0,0,0,0.12) 3px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Corner pip — top-left */
+.card-corner {
+  position: absolute;
+  top: 7px; left: 9px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+  z-index: 3;
+}
+
+.card-corner-val  { font-size: clamp(0.45rem, 0.8vw, 0.6rem); font-weight: bold; color: rgba(255,220,160,0.8); }
+.card-corner-suit { font-size: clamp(0.5rem, 0.9vw, 0.65rem); }
+
+/* Corner pip — bottom-right (mirrored) */
+.card-corner-br {
+  position: absolute;
+  bottom: 7px; right: 9px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+  z-index: 3;
+  transform: rotate(180deg);
+}
+
+/* Card art */
+.card-art {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  object-position: center;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  z-index: 1;
+  padding: 18px 8px 8px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+  transition: filter 0.3s;
+}
+
+.menu-card:hover .card-art {
+  filter: drop-shadow(0 0 14px var(--card-glow, rgba(255,255,255,0.3))) drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+}
+
+/* Card label */
+.card-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 6px 4px 8px;
+  text-align: center;
+  font-size: clamp(0.38rem, 0.7vw, 0.5rem);
+  letter-spacing: 1px;
+  color: rgba(255,220,160,0.8);
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
+  z-index: 3;
+}
+
+/* Per-card glow colours */
+.menu-card--play     { --card-glow: rgba(90,220,120,0.6);  border-color: rgba(90,220,120,0.25); }
+.menu-card--play:hover     { box-shadow: 0 16px 40px rgba(0,0,0,0.6), 0 0 28px rgba(90,220,120,0.4);  border-color: rgba(90,220,120,0.6); }
+
+.menu-card--tutorial { --card-glow: rgba(220,80,40,0.6);  border-color: rgba(220,80,40,0.25); }
+.menu-card--tutorial:hover { box-shadow: 0 16px 40px rgba(0,0,0,0.6), 0 0 28px rgba(220,80,40,0.4);  border-color: rgba(220,80,40,0.6); }
+
+.menu-card--settings { --card-glow: rgba(180,180,220,0.5); border-color: rgba(180,180,220,0.2); }
+.menu-card--settings:hover { box-shadow: 0 16px 40px rgba(0,0,0,0.6), 0 0 28px rgba(180,180,220,0.35); border-color: rgba(180,180,220,0.5); }
+
+.menu-card--deck     { --card-glow: rgba(224,192,64,0.6); border-color: rgba(224,192,64,0.25); }
+.menu-card--deck:hover     { box-shadow: 0 16px 40px rgba(0,0,0,0.6), 0 0 28px rgba(224,192,64,0.4);  border-color: rgba(224,192,64,0.6); }
+
+.menu-card--quit     { --card-glow: rgba(255,80,80,0.6);   border-color: rgba(255,80,80,0.2); }
+.menu-card--quit:hover     { box-shadow: 0 16px 40px rgba(0,0,0,0.6), 0 0 28px rgba(255,80,80,0.4);    border-color: rgba(255,80,80,0.5); }
+
+/* Launch / dim */
+.menu-card--launch {
+  animation: cardLaunch 0.55s cubic-bezier(.34,1.2,.64,1) forwards !important;
+  pointer-events: none;
+  z-index: 20;
+}
+
+@keyframes cardLaunch {
+  0%   { transform: translateY(-18px) scale(1.06); opacity: 1; }
+  50%  { transform: translateY(-60px) scale(1.18); opacity: 1; }
+  100% { transform: translateY(-120px) scale(1.3);  opacity: 0; }
+}
+
+.menu-card--dim {
+  opacity: 0.25;
+  transform: scale(0.95);
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+/* ============================================================
+   TRANSITION OVERLAY
+   ============================================================ */
+.menu-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.menu-transition.active { opacity: 1; }
+
+.menu-transition--play     { background: radial-gradient(circle at 50% 50%, rgba(90,220,120,0.45) 0%, rgba(26,8,8,0.96) 70%); }
+.menu-transition--tutorial { background: radial-gradient(circle at 50% 50%, rgba(80,160,255,0.45) 0%, rgba(26,8,8,0.96) 70%); }
+.menu-transition--deck     { background: radial-gradient(circle at 50% 50%, rgba(180,100,255,0.45) 0%, rgba(26,8,8,0.96) 70%); }
+
+/* ============================================================
+   SETTINGS MODAL
+   ============================================================ */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(6px);
+}
+
+.modal-overlay.active { display: flex; }
+
+.settings-modal {
+  background: linear-gradient(160deg, #1a1428 0%, #0e0c18 100%);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: clamp(24px, 4vw, 48px);
+  width: min(90vw, 460px);
+  color: #f0e8d8;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.8), 0 0 40px rgba(220,80,40,0.1);
+  animation: modalIn 0.3s cubic-bezier(.34,1.56,.64,1);
+}
+
+@keyframes modalIn {
+  from { transform: scale(0.88) translateY(20px); opacity: 0; }
+  to   { transform: scale(1)    translateY(0);    opacity: 1; }
+}
+
+.settings-title {
+  font-size: clamp(0.7rem, 1.5vw, 0.95rem);
+  margin: 0;
+  text-align: center;
+  color: #ffe066;
+  text-shadow: 0 0 12px rgba(255,210,0,0.5);
+  letter-spacing: 2px;
+}
+
+.setting-item { display: flex; flex-direction: column; gap: 8px; }
+
+.setting-item label {
+  font-size: clamp(0.45rem, 0.9vw, 0.6rem);
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 1px;
+}
+
+.slider-row { display: flex; align-items: center; gap: 12px; }
+
+.slider-row input[type="range"] {
+  flex: 1;
+  accent-color: #c080ff;
+  cursor: pointer;
+  height: 4px;
+}
+
+.slider-row span {
+  min-width: 36px;
+  text-align: right;
+  font-size: clamp(0.4rem, 0.8vw, 0.55rem);
+  color: rgba(255,255,255,0.5);
+}
+
+.fullscreen-btn {
+  background: rgba(220,80,40,0.15);
+  color: #f0e8d8;
+  border: 1px solid rgba(180,100,255,0.4);
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: clamp(0.4rem, 0.8vw, 0.55rem);
+  font-family: 'Press Start 2P', monospace;
+  transition: background 0.2s, box-shadow 0.2s;
+  align-self: flex-start;
+}
+
+.fullscreen-btn:hover {
+  background: rgba(180,100,255,0.3);
+  box-shadow: 0 0 14px rgba(180,100,255,0.4);
+}
+
+.close-btn {
+  background: rgba(255,200,120,0.06);
+  color: rgba(240,232,216,0.6);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: clamp(0.4rem, 0.8vw, 0.55rem);
+  font-family: 'Press Start 2P', monospace;
+  align-self: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+.close-btn:hover { background: rgba(255,200,120,0.12); color: #f0e8d8; }
+
+/* ============================================================
+   FULLSCREEN PROMPT & TOAST
+   ============================================================ */
+.fs-prompt {
+  position: fixed;
+  bottom: 24px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(220,80,40,0.15);
+  border: 1px solid rgba(180,100,255,0.4);
+  color: #f0e8d8;
+  padding: 10px 24px;
+  border-radius: 20px;
+  font-size: clamp(0.4rem, 0.8vw, 0.55rem);
+  cursor: pointer;
+  z-index: 9999;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.fs-prompt:hover { background: rgba(180,100,255,0.3); }
+
+.toast-msg {
+  position: fixed;
+  bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #1a1428;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #f0e8d8;
+  padding: 10px 24px;
+  border-radius: 20px;
+  font-size: clamp(0.4rem, 0.8vw, 0.55rem);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 9999;
+  white-space: nowrap;
+}
+
+.toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 600px) {
+  .menu-cards { gap: 10px; }
+  .menu-card  { width: clamp(88px, 28vw, 120px); }
+}
