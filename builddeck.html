@@ -71,7 +71,7 @@
 
   <div class="bd-wrapper">
     <div class="bd-header">
-      <button class="back-btn" onclick="navigateTo('main menu.html')">← Back</button>
+      <button class="back-btn" onclick="navigateTo('index.html')">← Back</button>
       <button class="filter-btn" onclick="openTypeChart()">📊Element Weaknesses</button>
       <h1 class="bd-title">Build Deck</h1>
       <div class="deck-counter">
@@ -342,7 +342,7 @@
       const overlay = document.getElementById('pageExitOverlay');
       overlay.classList.add('active');
       setTimeout(() => {
-        if (href === 'main menu.html') WildCardSession.endRunToMenu();
+        if (href === 'index.html') WildCardSession.endRunToMenu();
         else window.location.href = href;
       }, 420);
     }
