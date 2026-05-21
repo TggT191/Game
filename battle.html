@@ -1254,7 +1254,7 @@ function tryAgain() {
     window.location.href = 'battle.html?first=player&round=1';
 }
 
-function goMainMenu() { navigateTo(() => { window.location.href = 'main menu.html'; }); }
+function goMainMenu() { navigateTo(() => { window.location.href = 'index.html'; }); }
 
 // Rewards
 function offerReward() {
@@ -1624,7 +1624,7 @@ function closePause() {
 function leaveGame() {
   clearInterval(roundTimerInterval);
   clearInterval(turnTimerInterval);
-  navigateTo(() => { window.location.href = 'main menu.html'; });
+  navigateTo(() => { window.location.href = 'index.html'; });
 }
 </script>
 </body>
