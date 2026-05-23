@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Bootstrap/bootstrap-5.3.8-dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="CSS/battle.css">
+  <link rel="stylesheet" href="CSS/tutorial.css">
+  <title>WildCard - Tutorial</title>
+  <script src="audio.js"></script>
+  <script src="session.js"></script>
+</head>
+<body class="page-tutorial page-battle" data-wc-page="tutorial">
+<script>if (!WildCardSession.boot('tutorial')) { /* redirect */ }</script>
+
+<div id="screenBattle" class="battle-screen">
+  <div class="hud-top">
+    <div class="hud-left">
+      <div class="hud-name-row">
+        <span class="hud-name" id="opponentName">Training Dummy</span>
+        <span class="element-badge" id="opponentElementBadge">🔥</span>
+      </div>
+      <div class="hp-bar-wrap">
+        <div class="hp-bar-bg"><div class="hp-bar-fill opponent-hp" id="opponentHPBar"></div></div>
+        <span class="hp-text" id="opponentHPText">150 / 150</span>
+      </div>
+      <div class="status-badges" id="opponentStatus"></div>
+    </div>
+    <div class="hud-center">
+      <div class="round-timer" id="roundTimer">--:--</div>
+      <div class="round-info">
+        <span id="roundLabel">Tutorial</span>
+      </div>
+      <div class="turn-info your-turn" id="turnInfo">YOUR TURN</div>
+    </div>
+    <div class="hud-right">
+      <div class="hud-name-row hud-name-row-right">
+        <span class="element-badge" id="playerElementBadge">🌿</span>
+        <span class="hud-name">You</span>
+      </div>
+      <div class="hp-bar-wrap">
+        <div class="hp-bar-bg"><div class="hp-bar-fill player-hp" id="playerHPBar"></div></div>
+        <span class="hp-text" id="playerHPText">250 / 250</span>
+      </div>
+      <div class="energy-bar-wrap">
+        <div class="energy-bar-bg"><div class="energy-bar-fill" id="playerEnergyBar"></div></div>
+        <span class="energy-text" id="playerEnergyText">150 / 150</span>
+      </div>
+      <div class="status-badges" id="playerStatus"></div>
+    </div>
+  </div>
+
+  <div class="table-felt">
+    <div class="opp-fan-area">
+      <div class="opp-fan" id="opponentHand"></div>
+    </div>
+    <div class="center-zone">
+      <div class="battle-log" id="battleLog"></div>
+      <button type="button" class="deck-pile" id="deckPile" onclick="tutAddOneCard(false)" disabled aria-label="Draw one card from your deck">
+        <div class="deck-pile-cards">
+          <div class="deck-pile-card deck-pile-card--back"><img src="Images/Backcard.png" alt="" aria-hidden="true"></div>
+          <div class="deck-pile-card deck-pile-card--mid"><img src="Images/Backcard.png" alt="" aria-hidden="true"></div>
+          <div class="deck-pile-card deck-pile-card--top"><img src="Images/Backcard.png" alt="" aria-hidden="true"></div>
+        </div>
+        <div class="deck-pile-count" id="deckPileCount">∞</div>
+      </button>
+    </div>
+    <div class="player-fan-area">
+      <div class="player-fan" id="playerHand"></div>
+    </div>
+  </div>
+
+  <div class="hud-bottom">
+    <div class="turn-timer-bar">
+      <div class="turn-timer-fill" id="turnTimerFill"></div>
+    </div>
+    <div class="action-row">
+      <div class="action-buttons" id="actionButtons">
+        <button class="action-btn" id="btnShuffle" onclick="tutAddOneCard(true)" disabled>🔀 Shuffle</button>
+        <button class="action-btn" id="btnUseItem" onclick="tutOpenBag()" disabled>🎒 Items <span id="bagCount">(1)</span></button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="turn-timer-text" id="turnTimerText"></span>
+        <button class="pause-btn" onclick="goMainMenu()">✕ Exit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tut-tooltip" id="tutTooltip">
+  <div class="tut-tooltip-text" id="tutTooltipText"></div>
+  <button class="tut-continue-btn" id="tutContinueBtn" onclick="advance()">OK, got it →</button>
+</div>
+
+<div class="modal-overlay hidden" id="bagModal" onclick="closeBagOutside(event)">
+  <div class="bag-modal">
+    <h3 class="modal-title">🎒 Item Bag</h3>
+    <div class="bag-grid" id="bagGrid"></div>
+    <button class="btn-secondary-game" onclick="closeBag()">Close</button>
+  </div>
+</div>
+
+<div class="tut-complete hidden" id="tutComplete">
+  <div class="tut-complete-box">
+    <div class="tut-complete-icon">🎉</div>
+    <h2>Tutorial Complete!</h2>
+    <p class="tut-complete-lead">You are ready for real battles. Here is everything we covered:</p>
+    <ul class="tut-complete-list">
+      <li><strong>Main menu</strong> — pick Play, Tutorial, or Build Deck (save a 7-card deck).</li>
+      <li><strong>Rock Paper Scissors</strong> — each round starts with RPS to decide who goes first.</li>
+      <li><strong>Hand &amp; energy</strong> — each card costs ⚡ Energy. HP and energy bars are at the top.</li>
+      <li><strong>Type matchups</strong> — strong = 1.5× damage, weak = 0.5×, Neutral = 1×. Dark is special: it deals <strong>1.75×</strong> to everything and takes <strong>1.75×</strong> from everything. Your element badge (top right) updates to the type of the last card you played.</li>
+      <li><strong>Deck pile (∞)</strong> — tap the center pile to draw <strong>1 card</strong> from your saved Build Deck. This does <strong>not</strong> end your turn. A full hand (7 cards) swaps one random slot for the new card.</li>
+      <li><strong>Shuffle</strong> — spends your turn to add <strong>1 random card</strong> from the full card pool. Same 7-card swap rule if your hand is already full. <em>Light ✨ and Dark 🌑 cards are rare in the shuffle pool.</em></li>
+      <li><strong>Auto-refill</strong> — an empty hand refills automatically from your saved Build Deck.</li>
+      <li><strong>Items</strong> — use any item without ending your turn. Items carry over between rounds in one run and reset when you return to the main menu (Clear Game Run).</li>
+      <li><strong>Round rewards</strong> — after winning a round, choose one of 3 items. Boss rounds (every 5th) give stronger loot and tougher opponents.</li>
+      <li><strong>Win / Lose</strong> — reduce the opponent HP to 0 to win a round. Player HP is <strong>400</strong>; normal opponents are <strong>400 HP</strong> and bosses (every 5th round) are <strong>700 HP</strong>. If your HP hits 0 and you have a <strong>Cinder Plume</strong> (Phoenix Feather) saved, it revives you automatically — use it wisely, it only triggers once per game run.</li>
+      <li><strong>Reload protection</strong> — reloading or using the browser back button during a battle sends you straight back to the main menu so you never rejoin a stale session.</li>
+    </ul>
+    <button class="btn-primary-game" onclick="goMainMenu()">Back to Main Menu</button>
+  </div>
+</div>
+
+<div id="pageExitOverlay" style="position:fixed;inset:0;background:#0a1a0a;z-index:9000;opacity:0;pointer-events:none;transition:opacity 0.4s ease;"></div>
+<style>
+  #pageExitOverlay.active { opacity:1; pointer-events:all; }
+</style>
+
+<script>
+
+function safesfx(name, ...args) {
+  try { if(window.WCA) WCA.sfx[name](...args); } catch(e){}
+}
+
+const ELEMENT_ICONS = {Fire:'🔥',Water:'💧',Grass:'🌿',Lightning:'⚡',Earth:'🪨',Wind:'🌪',Light:'✨',Dark:'🌑'};
+const ELEMENT_COLORS = {
+  Fire:{bg:'#3a1a0a',border:'#c0440a',badge:'#e05a1a'},
+  Water:{bg:'#0a1a3a',border:'#0a60c0',badge:'#1a80e0'},
+  Grass:{bg:'#0a2a0a',border:'#2a8a2a',badge:'#3aaa3a'},
+  Lightning:{bg:'#2a2a0a',border:'#c0b000',badge:'#e0d000'},
+  Earth:{bg:'#2a1a0a',border:'#8a5a2a',badge:'#aa7a3a'},
+  Wind:{bg:'#0a2a2a',border:'#2aaaa0',badge:'#3acac0'},
+  Light:{bg:'#2a2a1a',border:'#c0c060',badge:'#e0e080'},
+  Dark:{bg:'#1a0a2a',border:'#6a2a9a',badge:'#8a3aba'}
+};
+
+const PLAYER_HAND = [
+  {id:'vine_whip',    name:'Vinco',   element:'Grass',     energy:1, damage:10, damageType:'single', effect:'', img: 'Images/Vinco.png'},
+  {id:'flame_burst',  name:'Inferawk',  element:'Fire',      energy:1, damage:8,  damageType:'single', effect:'30% burn chance', img: 'Images/Inferawk.png'},
+  {id:'aqua_shot',    name:'Dracabyss',    element:'Water',     energy:1, damage:10, damageType:'single', effect:'',img: 'Images/Dracabyss.png'},
+  {id:'healing_rain', name:'Sireenon', element:'Water',     energy:2, damage:0,  damageType:'heal',   effect:'heal25', img: 'Images/Sireenon.png'},
+  {id:'thunder_strike',name:'Voltrix',  element:'Lightning', energy:2, damage:18, damageType:'single', effect:'',img: 'Images/Voltrix.png'},
+];
+
+const TUT_ITEM = {id:'small_potion', name:'Minor Elixir', icon:'🧪', rarity:'common', desc:'Heal 20 HP', type:'heal', value:20};
+
+const STEPS = [
+  { msg: '👋 Welcome! Your <strong>hand</strong> is at the bottom. Each card costs <strong>Energy ⚡</strong>. HP and energy are in the HUD above.', highlight: 'playerHand', waitFor: null, position: 'above' },
+  { msg: '🌿 Click <strong>Vinco</strong> to attack the Training Dummy.', highlight: 'card-vine_whip', waitFor: 'play-vine_whip', position: 'above' },
+  { msg: '💥 Super effective! 🌿 Grass vs 🔥 Fire = <strong>1.5× damage</strong>. Watch the opponent HP bar drop.', highlight: 'opponentHPBar', waitFor: null, position: 'below' },
+  { msg: '⚠️ <strong>Strong = 1.5×</strong>, <strong>weak = 0.5×</strong>. Dark type is special — it deals and takes <strong>1.75×</strong>. Your element badge (top right) changes to the element of the last card you played.', highlight: 'playerElementBadge', waitFor: null, position: 'below' },
+  { msg: '🤖 The opponent takes a turn — watch your HP bar.', highlight: 'playerHPBar', waitFor: 'opp-turn-done', position: 'below', autoAdvance: true },
+  { msg: '🃏 Tap the center <strong>deck pile (∞)</strong> to draw <strong>1 card</strong> from your saved Build Deck. This does <strong>not</strong> end your turn. A full hand (7 cards) swaps one random slot.', highlight: 'deckPile', waitFor: 'deck-draw-done', position: 'above', enableDeckDraw: true },
+  { msg: '🔀 <strong>Shuffle</strong> spends your turn: it adds <strong>1 random card</strong> from the full card pool (not your whole hand). Same 7-card swap rule if your hand is already full.', highlight: 'btnShuffle', waitFor: 'shuffle-done', position: 'above', enableShuffle: true },
+  { msg: '🔄 In real battles, an <strong>empty hand auto-refills</strong> from your Build Deck. Keep playing cards to stay stocked!', highlight: 'playerHand', waitFor: null, position: 'above' },
+  { msg: '🎒 Open <strong>Items</strong> — using an item does <strong>not</strong> end your turn. Items carry over between rounds in one run and reset when you return to the main menu.', highlight: 'btnUseItem', waitFor: 'item-used', position: 'above', enableItem: true },
+  { msg: '⚡ Finish with <strong>Voltrix</strong> for heavy damage!', highlight: 'card-thunder_strike', waitFor: 'play-thunder_strike', position: 'above' },
+  { msg: '🏆 Nice work! Real battles also use <strong>Rock Paper Scissors</strong> each round and <strong>round rewards</strong> after wins. See the summary next.', highlight: null, waitFor: 'complete', position: 'center', autoAdvance: true, complete: true }
+];
+
+let currentStep = 0;
+let playerHP = 250, playerMaxHP = 250;
+let opponentHP = 150, opponentMaxHP = 150;
+let playerEnergy = 150;
+let playerBag = [TUT_ITEM.id];
+let waitingFor = null;
+
+window.onload = function() {
+  renderOpponentHand(5);
+  renderPlayerHand();
+  updateHPBars();
+  addLog('Tutorial started! Follow the instructions.');
+  setTimeout(() => { try { WCA.playMenuBGM(); } catch(e){} }, 200);
+  setTimeout(() => runStep(0), 500);
+};
+
+function runStep(idx) {
+  currentStep = idx;
+  const step = STEPS[idx];
+  waitingFor = step.waitFor;
+  document.getElementById('btnShuffle').disabled = !step.enableShuffle;
+  document.getElementById('btnUseItem').disabled = !step.enableItem;
+  document.getElementById('deckPile').disabled = !step.enableDeckDraw;
+  document.getElementById('tutContinueBtn').style.display = (!step.waitFor || step.waitFor === null) ? 'block' : 'none';
+  showTooltip(step.msg, step.highlight, step.position);
+  document.querySelectorAll('.hand-card').forEach(c => {
+    c.classList.remove('tut-highlight');
+    c.style.pointerEvents = 'none';
+  });
+  if (step.highlight && step.highlight.startsWith('card-')) {
+    const cardId = step.highlight.replace('card-', '');
+    document.querySelectorAll('.hand-card').forEach(c => {
+      if (c.dataset.cardId === cardId) {
+        c.classList.add('tut-highlight');
+        c.style.pointerEvents = 'auto';
+      }
+    });
+  }
+  if (step.autoAdvance && step.waitFor === 'opp-turn-done') {
+    setTimeout(() => doOpponentTurn(), 1800);
+  }
+  if (step.complete) {
+    setTimeout(() => {
+      hideTooltip();
+      document.getElementById('tutComplete').classList.remove('hidden');
+      try { WCA.stopBGM(); WCA.sfx.victory(); } catch(e){}
+    }, 2000);
+  }
+}
+
+function advance() {
+  safesfx("menuMove");
+  if (currentStep < STEPS.length - 1) runStep(currentStep + 1);
+}
+
+function playCard(cardId) {
+  if (waitingFor !== 'play-' + cardId) return;
+  const cardDefs = {
+    'vine_whip':      { damage: 10, element: 'Grass', name: 'Vinco' },
+    'thunder_strike': { damage: 18, element: 'Lightning', name: 'Voltrix', finisher: true }
+  };
+  const def = cardDefs[cardId];
+  if (!def) return;
+  const cardEl = document.querySelector('[data-card-id="' + cardId + '"]');
+  if (cardEl) cardEl.classList.add('playing');
+
+  setTimeout(() => {
+    safesfx('playCard', def.element);
+    const actualDmg = cardId === 'vine_whip' ? Math.floor(def.damage * 1.5) : def.damage;
+    opponentHP = Math.max(0, opponentHP - actualDmg);
+    if (def.finisher) opponentHP = 0;
+    if (cardId === 'vine_whip') {
+      addLog('You used Vinco for ' + actualDmg + ' damage! (Super effective! x1.5)');
+    } else {
+      addLog('You used ' + def.name + ' for ' + actualDmg + ' damage!');
+    }
+    safesfx('hit', false);
+    updateHPBars();
+    document.getElementById('playerElementBadge').textContent = ELEMENT_ICONS[def.element];
+    document.getElementById('playerElementBadge').style.background = ELEMENT_COLORS[def.element].bg;
+    document.getElementById('playerElementBadge').style.borderColor = ELEMENT_COLORS[def.element].border;
+    if (cardEl) cardEl.remove();
+    hideTooltip();
+    advance();
+  }, 500);
+}
+
+function tutAddOneCard(fromShuffle) {
+  const waitKey = fromShuffle ? 'shuffle-done' : 'deck-draw-done';
+  if (waitingFor !== waitKey) return;
+
+  document.getElementById('deckPile').disabled = true;
+  document.getElementById('btnShuffle').disabled = true;
+
+  const pile = document.getElementById('deckPile');
+  pile.classList.add('deck-draw-pop');
+  setTimeout(() => pile.classList.remove('deck-draw-pop'), 400);
+
+  const newCard = fromShuffle
+    ? {id:'rock_smash', name:'Monorok', element:'Earth', energy:2, damage:25, damageType:'single', effect:'', img: 'Images/Monorok.png'}
+    : {id:'earthquake', name:'Dragarth', element:'Earth', energy:1, damage:10, damageType:'single', effect:'', img: 'Images/Dragarth.png'};
+
+  if (!PLAYER_HAND.find(c => c.id === newCard.id)) PLAYER_HAND.push(newCard);
+
+  if (fromShuffle) {
+    document.getElementById('turnInfo').textContent = 'OPPONENT TURN';
+    document.getElementById('turnInfo').className = 'turn-info opp-turn';
+    addLog('Shuffle used your turn — added 1 random card from the pool.');
+    setTimeout(() => {
+      document.getElementById('turnInfo').textContent = 'YOUR TURN';
+      document.getElementById('turnInfo').className = 'turn-info your-turn';
+    }, 800);
+  } else {
+    addLog('Drew Dragarth from your deck (∞ pile — turn not spent).');
+  }
+
+  renderPlayerHand();
+  hideTooltip();
+  advance();
+}
+
+function tutOpenBag() {
+  if (waitingFor !== 'item-used') return;
+  renderBagGrid();
+  document.getElementById('bagModal').classList.remove('hidden');
+}
+
+function closeBag() { document.getElementById('bagModal').classList.add('hidden'); }
+function closeBagOutside(e) { if(e.target===document.getElementById('bagModal')) closeBag(); }
+
+function renderBagGrid() {
+  const grid = document.getElementById('bagGrid');
+  grid.innerHTML = '';
+  const el = document.createElement('div');
+  el.className = 'bag-item rarity-common';
+  el.innerHTML = '<div class="item-icon">' + TUT_ITEM.icon + '</div><div class="item-name">' + TUT_ITEM.name + '</div><div class="item-desc">' + TUT_ITEM.desc + '</div>';
+  el.onclick = () => useTutItem();
+  grid.appendChild(el);
+}
+
+function useTutItem() {
+  safesfx('item');
+  closeBag();
+  playerHP = Math.min(playerMaxHP, playerHP + TUT_ITEM.value);
+  playerBag = [];
+  document.getElementById('bagCount').textContent = '(0)';
+  addLog('Used ' + TUT_ITEM.name + ': healed 20 HP!');
+  updateHPBars();
+  hideTooltip();
+  advance();
+}
+
+function doOpponentTurn() {
+  safesfx('oppTurn');
+  document.getElementById('turnInfo').textContent = 'OPPONENT TURN';
+  document.getElementById('turnInfo').className = 'turn-info opp-turn';
+  addLog('Opponent used Flame Burst for 15 damage!');
+  playerHP = Math.max(0, playerHP - 15);
+  updateHPBars();
+  setTimeout(() => {
+    document.getElementById('turnInfo').textContent = 'YOUR TURN';
+    document.getElementById('turnInfo').className = 'turn-info your-turn';
+    advance();
+  }, 1500);
+}
+
+function renderPlayerHand() {
+  const hand = document.getElementById('playerHand');
+  hand.innerHTML = '';
+
+  const seen = new Set();
+
+  PLAYER_HAND.forEach(card => {
+    if (seen.has(card.id)) return;
+    seen.add(card.id);
+
+    const col = ELEMENT_COLORS[card.element] || {
+      bg: '#2b2f3a',
+      border: '#555',
+      badge: '#aaa'
+    };
+
+    const el = document.createElement('div');
+    el.className = 'hand-card';
+    el.dataset.cardId = card.id;
+
+    el.style.setProperty('--card-bg', col.bg);
+    el.style.setProperty('--card-border', col.border);
+    el.style.setProperty('--card-badge', col.badge);
+
+    el.style.pointerEvents = 'none';
+
+    el.innerHTML = `
+      <img src="${card.img}" class="hand-card-img" alt="${card.name}">
+      <div class="hand-card-overlay"></div>
+
+      <div class="hc-content">
+        <div class="hc-element">
+          ${ELEMENT_ICONS[card.element]} ${card.element}
+        </div>
+
+        <div class="hc-name">
+          ${card.name}
+        </div>
+
+        <div class="hc-stats">
+          <span class="hc-energy">⚡${card.energy}</span>
+          <span class="hc-dmg">${card.damage}</span>
+        </div>
+
+        <div class="hc-effect">
+          ${card.effect || '—'}
+        </div>
+      </div>
+    `;
+
+    el.onclick = () => playCard(card.id);
+    hand.appendChild(el);
+  });
+}
+
+function renderOpponentHand(count) {
+  const hand = document.getElementById('opponentHand');
+  hand.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'opp-card-back';
+    el.style.animationDelay = (i * 0.06) + 's';
+    el.setAttribute('aria-label', 'Hidden card');
+    const img = document.createElement('img');
+    img.src = 'Images/Backcard.png';
+    img.alt = '';
+    img.setAttribute('aria-hidden', 'true');
+    el.appendChild(img);
+    hand.appendChild(el);
+  }
+}
+
+function updateHPBars() {
+  const pp = (playerHP / playerMaxHP) * 100;
+  const op = (opponentHP / opponentMaxHP) * 100;
+  document.getElementById('playerHPBar').style.width = pp + '%';
+  document.getElementById('playerHPBar').style.background = pp > 50 ? '#4a9a4a' : pp > 25 ? '#e0d000' : '#e05a1a';
+  document.getElementById('playerHPText').textContent = playerHP + ' / ' + playerMaxHP;
+  document.getElementById('opponentHPBar').style.width = op + '%';
+  document.getElementById('opponentHPBar').style.background = op > 50 ? '#9a4a4a' : op > 25 ? '#e0d000' : '#e05a1a';
+  document.getElementById('opponentHPText').textContent = opponentHP + ' / ' + opponentMaxHP;
+}
+
+function addLog(msg) {
+  const log = document.getElementById('battleLog');
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.textContent = msg;
+  log.appendChild(entry);
+  log.scrollTop = log.scrollHeight;
+  while (log.children.length > 10) log.removeChild(log.firstChild);
+}
+
+function showTooltip(msg, highlightId, position) {
+  const tooltip = document.getElementById('tutTooltip');
+  document.getElementById('tutTooltipText').innerHTML = msg;
+  if (!highlightId) {
+    tooltip.style.top = '50%';
+    tooltip.style.left = '50%';
+    tooltip.style.transform = 'translate(-50%, -50%)';
+    tooltip.classList.add('visible');
+    return;
+  }
+  let targetEl = highlightId.startsWith('card-')
+    ? document.querySelector('[data-card-id="' + highlightId.replace('card-','') + '"]')
+    : document.getElementById(highlightId);
+  tooltip.classList.add('visible');
+  if (targetEl) {
+    const rect = targetEl.getBoundingClientRect();
+    if (position === 'above') {
+      tooltip.style.left = Math.min(window.innerWidth - 320, Math.max(10, rect.left + rect.width/2 - 160)) + 'px';
+      tooltip.style.top = (rect.top - 10) + 'px';
+      tooltip.style.transform = 'translateY(-100%)';
+    } else if (position === 'below') {
+      tooltip.style.left = Math.min(window.innerWidth - 320, Math.max(10, rect.left + rect.width/2 - 160)) + 'px';
+      tooltip.style.top = (rect.bottom + 10) + 'px';
+      tooltip.style.transform = 'none';
+    }
+    targetEl.classList.add('tut-ring');
+  }
+}
+
+function hideTooltip() {
+  document.getElementById('tutTooltip').classList.remove('visible');
+  document.querySelectorAll('.tut-ring').forEach(e => e.classList.remove('tut-ring'));
+}
+
+function goMainMenu() {
+  const overlay = document.getElementById('pageExitOverlay');
+  overlay.classList.add('active');
+  setTimeout(() => { WildCardSession.endRunToMenu(); }, 420);
+}
+
+</script>
+</body>
+</html>

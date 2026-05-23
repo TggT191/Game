@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Bootstrap/bootstrap-5.3.8-dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="CSS/fonts.css">
+  <link rel="stylesheet" href="CSS/pixel-theme.css">
+  <link rel="stylesheet" href="CSS/builddeck.css">
+  <link rel="stylesheet" href="CSS/pixel-chrome.css">
+  <title>Build Deck – WildCard</title>
+  <script src="audio.js"></script>
+  <script src="session.js"></script>
+</head>
+<body class="page-build" data-wc-page="builddeck">
+<script>if (!WildCardSession.boot('builddeck')) { /* redirect */ }</script>
+
+  <div class="bd-wrapper">
+    <div class="bd-header">
+      <button class="back-btn" onclick="navigateTo('main menu.html')">← Back</button>
+      <button class="filter-btn" onclick="openTypeChart()">📊Element Weaknesses</button>
+      <h1 class="bd-title">Build Deck</h1>
+      <div class="deck-counter">
+        Deck: <span id="deckCount">0</span> / 7
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all" onclick="filterCards('all', this)">All</button>
+      <button class="filter-btn" data-filter="Fire" onclick="filterCards('Fire', this)">🔥 Fire</button>
+      <button class="filter-btn" data-filter="Water" onclick="filterCards('Water', this)">💧 Water</button>
+      <button class="filter-btn" data-filter="Grass" onclick="filterCards('Grass', this)">🌿 Grass</button>
+      <button class="filter-btn" data-filter="Lightning" onclick="filterCards('Lightning', this)">⚡ Lightning</button>
+      <button class="filter-btn" data-filter="Earth" onclick="filterCards('Earth', this)">🪨 Earth</button>
+      <button class="filter-btn" data-filter="Wind" onclick="filterCards('Wind', this)">🌪 Wind</button>
+      <button class="filter-btn" data-filter="Light" onclick="filterCards('Light', this)">✨ Light</button>
+      <button class="filter-btn" data-filter="Dark" onclick="filterCards('Dark', this)">🌑 Dark</button>
+    </div>
+
+    <div class="bd-main">
+      <div class="collection-panel">
+        <h2 class="panel-title">Card Collection</h2>
+        <div class="card-grid" id="cardGrid"></div>
+      </div>
+
+      <div class="deck-panel">
+        <h2 class="panel-title">Your Deck <span class="deck-count-badge" id="deckBadge">0/7</span></h2>
+        <div class="deck-list" id="deckList">
+          <p class="deck-empty-msg" id="deckEmptyMsg">Your deck is empty. Add cards from the collection.</p>
+        </div>
+        <div class="deck-actions">
+          <button class="action-btn save-btn" onclick="saveDeck()">Save Deck</button>
+          <button class="action-btn clear-btn" onclick="clearDeck()">Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="typeChartModal" onclick="if(event.target===this)closeTypeChart()">
+    <div class="typechart-modal">
+      <h3 class="modal-title">📊 Element Weaknesses</h3>
+      <div class="typechart-grid" id="typeChartGrid"></div>
+      <button class="action-btn save-btn" onclick="closeTypeChart()">Close</button>
+    </div>
+  </div>
+
+  <div class="toast-msg" id="toastMsg"></div>
+  <div id="pageExitOverlay"></div>
+
+  <script>
+    const ALL_CARDS = [
+      { id: 'flame_burst',    name: 'Inferawk',    element: 'Fire',      energy: 1, damage: '15',      effect: '50% chance to Burn' },
+      { id: 'inferno_slash',  name: 'Caldarok',  element: 'Fire',      energy: 3, damage: '60',      effect: 'User takes 10 recoil' },
+      { id: 'wildfire',       name: 'Dravulcan',       element: 'Fire',      energy: 4, damage: '25',      effect: '90% chance to Burn' },
+      { id: 'aqua_shot',      name: 'Dracabyss',      element: 'Water',     energy: 1, damage: '50',      effect: 'No effect' },
+      { id: 'tidal_wave',     name: 'Wavolphin',     element: 'Water',     energy: 3, damage: '35',      effect: 'Slows the opponent' },
+      { id: 'healing_rain',   name: 'Sireenon',   element: 'Water',     energy: 2, damage: 'Heal 25', effect: 'Restores 25 HP' },
+      { id: 'vine_whip',      name: 'Vinco',     element: 'Grass',     energy: 1, damage: '30',      effect: 'No effect' },
+      { id: 'poison_spores',  name: 'Mossomoth',  element: 'Grass',     energy: 2, damage: '40',      effect: 'Poisons the opponent' },
+      { id: 'root_trap',      name: 'Forestrio',      element: 'Grass',     energy: 3, damage: '50',      effect: '50% chance to Stun' },
+      { id: 'thunder_strike', name: 'Voltrix',     element: 'Lightning', energy: 2, damage: '30',      effect: 'No effect' },
+      { id: 'static_field',   name: 'Zekryx',   element: 'Lightning', energy: 3, damage: '100',     effect: '30% chance to Stun' },
+      { id: 'overcharge',     name: 'Thundrak',     element: 'Lightning', energy: 2, damage: 'Buff',    effect: 'Guarantees next Critical Hit' },
+      { id: 'rock_smash',     name: 'Monorok',   element: 'Earth',     energy: 2, damage: '25',      effect: 'No effect' },
+      { id: 'stone_wall',     name: 'Territle',     element: 'Earth',     energy: 2, damage: 'Buff',    effect: 'Raises Defense for 3 turns' },
+      { id: 'earthquake',     name: 'Dragarth',    element: 'Earth',     energy: 4, damage: '45',      effect: 'No effect' },
+      { id: 'air_slash',      name: 'Galedrath',     element: 'Wind',      energy: 1, damage: '25',      effect: 'Quick strike (+25% dmg)' },
+      { id: 'tornado',        name: 'Tempython',    element: 'Wind',      energy: 3, damage: '20x3',    effect: 'Hits 3 times randomly' },
+      { id: 'tailwind',       name: 'Galair',       element: 'Wind',      energy: 2, damage: 'Buff',    effect: 'Boosts speed next turn' },
+      { id: 'holy_beam',      name: 'Helioryn',     element: 'Light',     energy: 3, damage: '50',      effect: 'Strong vs Dark types' },
+      { id: 'divine_shield',  name: 'Gleamrock',      element: 'Light',     energy: 2, damage: 'Buff',    effect: 'Reduces next hit by 50%' },
+      { id: 'sanctuary',      name: 'Naiyra',     element: 'Light',     energy: 4, damage: 'Heal+Shield', effect: 'Heals 30 HP and raises a Shield' },
+      { id: 'shadow_strike',  name: 'Souldrain',     element: 'Dark',      energy: 2, damage: '50',      effect: 'No effect' },
+      { id: 'blood_pact',     name: 'Nyxarion',  element: 'Dark',      energy: 3, damage: '60',      effect: 'User loses 15 HP' },
+      { id: 'void_explosion', name: 'Umbragon',      element: 'Dark',      energy: 5, damage: '80',      effect: 'Both sides take 30% recoil' },
+    ];
+
+    const TYPE_CHART_DATA = {
+      Fire:      { strong: ['Grass', 'Wind'],     weak: ['Water', 'Earth'] },
+      Water:     { strong: ['Fire', 'Earth'],     weak: ['Grass', 'Lightning'] },
+      Grass:     { strong: ['Water', 'Earth'],    weak: ['Fire', 'Wind'] },
+      Lightning: { strong: ['Water', 'Wind'],     weak: ['Earth'] },
+      Earth:     { strong: ['Fire', 'Lightning'], weak: ['Water', 'Grass'] },
+      Wind:      { strong: ['Grass', 'Lightning'], weak: ['Fire', 'Earth'] },
+      Light:     { strong: ['Dark'],              weak: ['Dark'] },
+      Dark:      { strong: ['All types (deals 2x)'], weak: ['Takes 2x from all types'] }
+    };
+
+    const ELEMENT_COLORS = {
+      Fire:      { bg: '#3a1a0a', border: '#c0440a', badge: '#e05a1a' },
+      Water:     { bg: '#0a1a3a', border: '#0a60c0', badge: '#1a80e0' },
+      Grass:     { bg: '#0a2a0a', border: '#2a8a2a', badge: '#3aaa3a' },
+      Lightning: { bg: '#2a2a0a', border: '#c0b000', badge: '#e0d000' },
+      Earth:     { bg: '#2a1a0a', border: '#8a5a2a', badge: '#aa7a3a' },
+      Wind:      { bg: '#0a2a2a', border: '#2aaaa0', badge: '#3acac0' },
+      Light:     { bg: '#2a2a1a', border: '#c0c060', badge: '#e0e080' },
+      Dark:      { bg: '#1a0a2a', border: '#6a2a9a', badge: '#8a3aba' },
+    };
+
+    const ELEMENT_ICONS = {
+      Fire: '🔥', Water: '💧', Grass: '🌿', Lightning: '⚡',
+      Earth: '🪨', Wind: '🌪', Light: '✨', Dark: '🌑'
+    };
+
+    function openTypeChart() {
+      const grid = document.getElementById('typeChartGrid');
+      grid.innerHTML = '';
+      Object.entries(TYPE_CHART_DATA).forEach(([element, data]) => {
+        const col = ELEMENT_COLORS[element];
+        const row = document.createElement('div');
+        row.className = 'tc-row';
+        row.style.borderLeft = '4px solid ' + col.border;
+        const fmt = (list) => list.map(e => (ELEMENT_ICONS[e] ? (ELEMENT_ICONS[e] + ' ' + e) : e)).join(', ');
+        row.innerHTML = `
+          <div class="tc-element">${ELEMENT_ICONS[element]} ${element}</div>
+          <div class="tc-strong">✅ Strong vs: ${fmt(data.strong) || '—'}</div>
+          <div class="tc-weak">❌ Weak to: ${fmt(data.weak) || '—'}</div>
+        `;
+        grid.appendChild(row);
+      });
+      document.getElementById('typeChartModal').classList.remove('hidden');
+    }
+
+    function closeTypeChart() {
+      document.getElementById('typeChartModal').classList.add('hidden');
+    }
+
+    let deck = [];
+    let currentFilter = 'all';
+
+    function renderCollection() {
+      const grid = document.getElementById('cardGrid');
+      grid.innerHTML = '';
+      const filtered = currentFilter === 'all'
+        ? ALL_CARDS
+        : ALL_CARDS.filter(c => c.element === currentFilter);
+
+        filtered.forEach(card => {
+    const col = ELEMENT_COLORS[card.element];
+    const inDeck = deck.find(d => d.card.id === card.id);
+    const count = inDeck ? inDeck.count : 0;
+    const maxed = count >= 2;
+    const deckFull = deck.reduce((s, d) => s + d.count, 0) >= 7;
+
+    const el = document.createElement('div');
+
+el.className = 'coll-card' + (maxed ? ' maxed' : '');
+el.dataset.card = card.id;
+
+el.style.setProperty('--card-bg', col.bg);
+el.style.setProperty('--card-border', col.border);
+el.style.setProperty('--card-badge', col.badge);
+
+el.innerHTML = `
+  <div class="coll-card-element">
+    ${ELEMENT_ICONS[card.element]} ${card.element}
+  </div>
+
+  <div class="coll-card-name">
+    ${card.name}
+  </div>
+
+  <div class="coll-card-stats">
+    <span class="stat-energy">⚡${card.energy}</span>
+    <span class="stat-dmg">${card.damage}</span>
+  </div>
+
+  <div class="coll-card-effect">
+    ${card.effect}
+  </div>
+
+  <div class="coll-card-footer">
+    <span class="copy-count">${count}/2</span>
+
+    <button
+      class="add-btn"
+      onclick="addCard('${card.id}')"
+      ${maxed || deckFull ? 'disabled' : ''}
+    >
+      ${maxed ? 'Max' : deckFull ? 'Full' : '+ Add'}
+    </button>
+  </div>
+`;
+
+    grid.appendChild(el);
+  });
+    }
+
+    function renderDeck() {
+      const list = document.getElementById('deckList');
+      const emptyMsg = document.getElementById('deckEmptyMsg');
+      const total = deck.reduce((s, d) => s + d.count, 0);
+      document.getElementById('deckCount').textContent = total;
+      document.getElementById('deckBadge').textContent = total + '/7';
+      Array.from(list.children).forEach(child => {
+        if (child !== emptyMsg) child.remove();
+      });
+      if (deck.length === 0) {
+        emptyMsg.style.display = 'block';
+        return;
+      }
+      emptyMsg.style.display = 'none';
+      deck.forEach(entry => {
+        const card = entry.card;
+        const col = ELEMENT_COLORS[card.element];
+        const row = document.createElement('div');
+        row.className = 'deck-row';
+        row.style.setProperty('--card-border', col.border);
+        row.innerHTML = `
+          <span class="deck-row-icon">${ELEMENT_ICONS[card.element]}</span>
+          <span class="deck-row-name">${card.name}</span>
+          <span class="deck-row-count">x${entry.count}</span>
+          <button class="remove-btn" onclick="removeCard('${card.id}')">✕</button>
+        `;
+        list.appendChild(row);
+      });
+    }
+
+    function addCard(cardId) {
+      const total = deck.reduce((s, d) => s + d.count, 0);
+      if (total >= 7) { showToast('Deck is full! (7/7)'); return; }
+      const card = ALL_CARDS.find(c => c.id === cardId);
+      const existing = deck.find(d => d.card.id === cardId);
+      if (existing) {
+        if (existing.count >= 2) { showToast('Max 2 copies per card!'); return; }
+        existing.count++;
+      } else {
+        deck.push({ card, count: 1 });
+      }
+      renderDeck();
+      renderCollection();
+    }
+
+    function removeCard(cardId) {
+      const idx = deck.findIndex(d => d.card.id === cardId);
+      if (idx === -1) return;
+      deck[idx].count--;
+      if (deck[idx].count <= 0) deck.splice(idx, 1);
+      renderDeck();
+      renderCollection();
+    }
+
+    function filterCards(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderCollection();
+    }
+
+    function saveDeck() {
+      const total = deck.reduce((s, d) => s + d.count, 0);
+      if (total === 0) { showToast('Add some cards first!'); return; }
+      localStorage.setItem('wildcardDeck', JSON.stringify(deck));
+      showToast('Deck saved! (' + total + ' cards)');
+    }
+
+    function clearDeck() {
+      if (deck.length === 0) return;
+      deck = [];
+      renderDeck();
+      renderCollection();
+      showToast('Deck cleared.');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toastMsg');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    const saved = localStorage.getItem('wildcardDeck');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        deck = parsed.map(entry => ({
+          card: ALL_CARDS.find(c => c.id === entry.card.id),
+          count: entry.count
+        })).filter(e => e.card);
+      } catch(e) { deck = []; }
+    }
+
+    renderCollection();
+    renderDeck();
+
+    function navigateTo(href) {
+      const overlay = document.getElementById('pageExitOverlay');
+      overlay.classList.add('active');
+      setTimeout(() => {
+        if (href === 'main menu.html') WildCardSession.endRunToMenu();
+        else window.location.href = href;
+      }, 420);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() { try { WCA.playMenuBGM(); } catch(e){} }, 400);
+      document.querySelectorAll('button, a, [role="button"]').forEach(function(btn) {
+        btn.addEventListener('click', function() { try { WCA.sfx.menuMove(); } catch(e){} });
+      });
+    });
+  </script>
+</body>
+</html>

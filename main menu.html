@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Bootstrap/bootstrap-5.3.8-dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="CSS/mm.css">
+  <title>WildCard</title>
+  <script src="audio.js"></script>
+  <script src="session.js"></script>
+</head>
+<body class="page-menu" data-wc-page="menu">
+<script>WildCardSession.boot('menu');</script>
+
+  <div class="menu-bg" aria-hidden="true"></div>
+  <div class="menu-vignette" aria-hidden="true"></div>
+
+  <div class="poker-table-wrap" aria-hidden="true">
+    <div class="poker-table" id="pokerTable">
+      <div class="table-lamp"></div>
+      <div class="side-cards-left" id="sideCardsLeft"></div>
+      <div class="side-cards-right" id="sideCardsRight"></div>
+      <div class="chip-stack" style="top:22%;left:28%">
+        <div class="chip" style="background:#c0440a"></div>
+        <div class="chip" style="background:#c0440a"></div>
+        <div class="chip" style="background:#e0d000"></div>
+      </div>
+      <div class="chip-stack" style="top:24%;right:26%">
+        <div class="chip" style="background:#1a80e0"></div>
+        <div class="chip" style="background:#1a80e0"></div>
+        <div class="chip" style="background:#1a80e0"></div>
+        <div class="chip" style="background:#e0d000"></div>
+      </div>
+      <div class="chip-stack" style="top:60%;left:48%">
+        <div class="chip" style="background:#e0d000"></div>
+        <div class="chip" style="background:#e0d000"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="neon-line" style="top:18%;--nlColor:rgba(180,100,255,0.3);--nlDur:8s;--nlDelay:0s;" aria-hidden="true"></div>
+  <div class="neon-line" style="top:52%;--nlColor:rgba(90,220,120,0.2);--nlDur:11s;--nlDelay:3s;" aria-hidden="true"></div>
+  <div class="neon-line" style="top:80%;--nlColor:rgba(255,80,80,0.18);--nlDur:9s;--nlDelay:6s;" aria-hidden="true"></div>
+
+  <div class="menu-screen" id="screenMainMenu">
+
+    <div class="title-block">
+      <h1 class="title">WildCard</h1>
+    </div>
+
+    <div class="menu-cards" role="navigation" aria-label="Main menu">
+
+      <button type="button" class="menu-card menu-card--play"
+              data-menu="play" data-href="battle.html?first=player&round=1" aria-label="Play">
+        <span class="card-corner"><span class="card-corner-val">A</span><span class="card-corner-suit suit-spade">?</span></span>
+        <span class="card-corner-br"><span class="card-corner-val">A</span><span class="card-corner-suit suit-spade">?</span></span>
+        <img class="card-art" src="Images/Play.png" alt="Play">
+        <span class="card-label">PLAY</span>
+      </button>
+
+      <button type="button" class="menu-card menu-card--tutorial"
+              data-menu="tutorial" data-href="tutorial.html" aria-label="Tutorial">
+        <span class="card-corner"><span class="card-corner-val">T</span><span class="card-corner-suit suit-heart">?</span></span>
+        <span class="card-corner-br"><span class="card-corner-val">T</span><span class="card-corner-suit suit-heart">?</span></span>
+        <img class="card-art" src="Images/Tutorial.png" alt="Tutorial">
+        <span class="card-label">TUTORIAL</span>
+      </button>
+
+      <button type="button" class="menu-card menu-card--settings"
+              data-menu="settings" aria-label="Settings">
+        <span class="card-corner"><span class="card-corner-val">S</span><span class="card-corner-suit suit-club">?</span></span>
+        <span class="card-corner-br"><span class="card-corner-val">S</span><span class="card-corner-suit suit-club">?</span></span>
+        <img class="card-art" src="Images/Settings.png" alt="Settings">
+        <span class="card-label">SETTINGS</span>
+      </button>
+
+      <button type="button" class="menu-card menu-card--deck"
+              data-menu="deck" data-href="builddeck.html" aria-label="Build Deck">
+        <span class="card-corner"><span class="card-corner-val">D</span><span class="card-corner-suit suit-diamond">?</span></span>
+        <span class="card-corner-br"><span class="card-corner-val">D</span><span class="card-corner-suit suit-diamond">?</span></span>
+        <img class="card-art" src="Images/BuildDeck.png" alt="Build Deck">
+        <span class="card-label">BUILD DECK</span>
+      </button>
+
+      <button type="button" class="menu-card menu-card--quit"
+              data-menu="quit" aria-label="Quit">
+        <span class="card-corner"><span class="card-corner-val">Q</span><span class="card-corner-suit suit-heart">?</span></span>
+        <span class="card-corner-br"><span class="card-corner-val">Q</span><span class="card-corner-suit suit-heart">?</span></span>
+        <img class="card-art" src="Images/Exit.png" alt="Quit">
+        <span class="card-label">QUIT</span>
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="menu-transition" id="menuTransition" aria-hidden="true"></div>
+
+  <div class="modal-overlay" id="settingsOverlay" onclick="closeSettingsOutside(event)">
+    <div class="settings-modal">
+      <h2 class="settings-title">⚙ Settings</h2>
+      <div class="setting-item">
+        <label for="musicVolume">Music Volume</label>
+        <div class="slider-row">
+          <input type="range" id="musicVolume" min="0" max="100" value="70"
+                 oninput="updateVolume('musicVolume','musicVal',this.value)">
+          <span id="musicVal">70%</span>
+        </div>
+      </div>
+      <div class="setting-item">
+        <label for="sfxVolume">Sound Effects</label>
+        <div class="slider-row">
+          <input type="range" id="sfxVolume" min="0" max="100" value="70"
+                 oninput="updateVolume('sfxVolume','sfxVal',this.value)">
+          <span id="sfxVal">70%</span>
+        </div>
+      </div>
+      <button class="close-btn" onclick="closeSettings()">Close</button>
+    </div>
+  </div>
+
+  <div class="toast-msg" id="toastMsg"></div>
+
+  <script>
+    let menuNavigating = false;
+
+    document.querySelectorAll('.menu-card[data-menu]').forEach(btn => {
+      btn.addEventListener('click', e => chooseMenuCard(e));
+    });
+
+    function chooseMenuCard(e) {
+      if (menuNavigating) return;
+      const btn    = e.currentTarget;
+      const action = btn.dataset.menu;
+      const href   = btn.dataset.href;
+
+      if (action === 'settings') {
+        btn.classList.add('menu-card--launch');
+        setTimeout(() => { btn.classList.remove('menu-card--launch'); openSettings(); }, 220);
+        return;
+      }
+      if (action === 'quit') {
+        btn.classList.add('menu-card--launch');
+        setTimeout(() => { btn.classList.remove('menu-card--launch'); quitGame(); }, 180);
+        return;
+      }
+      if (!href) return;
+      if (action === 'play') WildCardSession.startNewGame();
+      launchMenuTransition(btn, href);
+    }
+
+    function launchMenuTransition(btn, href) {
+      menuNavigating = true;
+      document.querySelectorAll('.menu-card').forEach(b => {
+        b.disabled = true;
+        if (b !== btn) b.classList.add('menu-card--dim');
+      });
+      btn.classList.add('menu-card--launch');
+      const overlay = document.getElementById('menuTransition');
+      overlay.classList.add('active', 'menu-transition--' + (btn.dataset.menu || 'play'));
+      setTimeout(() => { window.location.href = href; }, 620);
+    }
+
+    function openSettings()  { document.getElementById('settingsOverlay').classList.add('active'); }
+    function closeSettings() { document.getElementById('settingsOverlay').classList.remove('active'); }
+    function closeSettingsOutside(e) {
+      if (e.target === document.getElementById('settingsOverlay')) closeSettings();
+    }
+
+    function updateVolume(sliderId, labelId, value) {
+      document.getElementById(labelId).textContent = value + '%';
+      const normalized = parseInt(value) / 100;
+      if (sliderId === 'musicVolume') {
+        localStorage.setItem('wcMusicVolume', normalized);
+        try { WCA.setMusicVolume(normalized); } catch(e) {}
+      } else if (sliderId === 'sfxVolume') {
+        localStorage.setItem('wcSfxVolume', normalized);
+        try { WCA.setSfxVolume(normalized); } catch(e) {}
+      }
+    }
+
+    (function applySavedSettings() {
+      const musicRaw = parseFloat(localStorage.getItem('wcMusicVolume'));
+      const sfxRaw   = parseFloat(localStorage.getItem('wcSfxVolume'));
+      const music = isNaN(musicRaw) ? 70 : Math.round(musicRaw * 100);
+      const sfx   = isNaN(sfxRaw)   ? 70 : Math.round(sfxRaw   * 100);
+      document.getElementById('musicVolume').value = music;
+      document.getElementById('sfxVolume').value   = sfx;
+      document.getElementById('musicVal').textContent = music + '%';
+      document.getElementById('sfxVal').textContent   = sfx   + '%';
+    })();
+
+    function quitGame() {
+      if (confirm('Are you sure you want to quit?')) {
+        document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#0d0a14;color:rgba(255,255,255,0.4);font-family:\'Press Start 2P\',monospace;font-size:0.7rem;text-align:center;padding:20px;">Thanks for playing WildCard!</div>';
+      }
+    }
+
+    const saved = localStorage.getItem('wildcardDeck');
+    if (saved) { try { JSON.parse(saved); } catch(e) { localStorage.removeItem('wildcardDeck'); } }
+
+    const TABLE_CARDS = [
+      { id:'vine_whip',     name:'Vinco',    element:'Grass',     energy:1, damage:10, effect:'Growth strike', img:'Images/Vinco.png',     color:{bg:'#0a2a0a',border:'#2a8a2a',badge:'#3aaa3a'} },
+      { id:'flame_burst',   name:'Inferawk', element:'Fire',      energy:1, damage:8,  effect:'Burn chance',   img:'Images/Inferawk.png',  color:{bg:'#3a1a0a',border:'#c0440a',badge:'#e05a1a'} },
+      { id:'aqua_shot',     name:'Dracabyss',element:'Water',     energy:1, damage:10, effect:'Flow hit',      img:'Images/Dracabyss.png', color:{bg:'#0a1a3a',border:'#0a60c0',badge:'#1a80e0'} },
+      { id:'healing_rain',  name:'Sireenon', element:'Water',     energy:2, damage:0,  effect:'Heal wave',     img:'Images/Sireenon.png',  color:{bg:'#0a1a3a',border:'#0a60c0',badge:'#1a80e0'} },
+      { id:'thunder_strike',name:'Voltrix',  element:'Lightning', energy:2, damage:18, effect:'Shock burst',   img:'Images/Voltrix.png',   color:{bg:'#2a2a0a',border:'#c0b000',badge:'#e0d000'} }
+    ];
+
+    const ICONS_MM = {
+      Fire:'🔥', Water:'💧', Grass:'🌿', Lightning:'⚡',
+      Earth:'🪨', Wind:'🌪', Light:'✨', Dark:'🌑'
+    };
+
+    function makeBattleCard(card) {
+      const el = document.createElement('div');
+      el.className = 'table-battle-card';
+      el.style.setProperty('--card-bg', card.color.bg);
+      el.style.setProperty('--card-border', card.color.border);
+      el.style.setProperty('--card-badge', card.color.badge);
+      el.style.background = card.color.bg;
+      el.style.borderColor = card.color.border;
+      el.innerHTML = `
+        <img class="tbc-img" src="${card.img}" alt="${card.name}">
+        <div class="tbc-overlay"></div>
+        <div class="tbc-element">${ICONS_MM[card.element]} ${card.element}</div>
+        <div class="tbc-name">${card.name}</div>
+        <div class="tbc-stats">
+          <span class="tbc-energy">⚡${card.energy}</span>
+          <span class="tbc-dmg">${card.damage}</span>
+        </div>
+        <div class="tbc-effect">${card.effect || '—'}</div>
+      `;
+      return el;
+    }
+
+    (function buildTableCards() {
+      const shuffled = [...TABLE_CARDS].sort(() => Math.random() - 0.5);
+      const table = document.getElementById('pokerTable');
+
+      const feltPositions = [
+        {top:'18%',left:'12%',rot:'-11deg'}, {top:'14%',left:'22%',rot:'7deg'},
+        {top:'56%',left:'9%', rot:'-5deg'},  {top:'52%',left:'20%',rot:'12deg'},
+        {top:'16%',right:'12%',rot:'13deg'}, {top:'12%',right:'22%',rot:'-8deg'},
+        {top:'54%',right:'9%', rot:'6deg'},  {top:'50%',right:'20%',rot:'-12deg'},
+        {top:'32%',left:'35%',rot:'-2deg'},  {top:'30%',left:'44%',rot:'3deg'},
+        {top:'32%',left:'53%',rot:'-4deg'},
+      ];
+      feltPositions.forEach((pos, i) => {
+        const card = makeBattleCard(shuffled[i % shuffled.length]);
+        card.style.position = 'absolute';
+        card.style.top    = pos.top    || '';
+        card.style.left   = pos.left   || '';
+        card.style.right  = pos.right  || '';
+        card.style.transform = `rotate(${pos.rot})`;
+        table.appendChild(card);
+      });
+
+      const leftEl  = document.getElementById('sideCardsLeft');
+      const rightEl = document.getElementById('sideCardsRight');
+      for (let i = 0; i < 3; i++) {
+        leftEl.appendChild(makeBattleCard(shuffled[(i + 3) % shuffled.length]));
+        rightEl.appendChild(makeBattleCard(shuffled[(i + 6) % shuffled.length]));
+      }
+    })();
+
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() { try { WCA.playMenuBGM(); } catch(e){} }, 400);
+      document.querySelectorAll('button, a, [role="button"]').forEach(function(btn) {
+        btn.addEventListener('click', function() { try { WCA.sfx.menuConfirm(); } catch(e){} });
+      });
+    });
+  </script>
+</body>
+</html>
